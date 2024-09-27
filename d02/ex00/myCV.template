@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{title}</title>
+	<style>
+		table {
+			border-collapse: collapse;
+		}
+
+		th,
+		td {
+			border: 1px solid #ffffff;
+			padding: 8px;
+			text-align: left;
+		}
+
+		body {
+			background-color: #000000;
+			color: #ffffff;
+		}
+	</style>
+</head>
+
+<body>
+	<ul>
+		<header>
+			<h1>{title}</h1>
+		</header>
+
+		<li>Name: {name}</li>
+		<li>Surname: {surname}</li>
+		<li>Age: {age}</li>
+		<li>Profession: {profession}</li>
+	</ul>
+
+</body>
+
+</html>
