@@ -1,0 +1,5 @@
+title = "CV"
+name = "John"
+surname = "Smith"
+age = "42"
+profession = "Software Engineer"
