@@ -4,11 +4,13 @@ class Elem:
 		self.attr = attr
 		self.content = []
 		self.level = 0
-		if content is not None:
-			self.add_content(content)
 		if tag_type not in ["double", "simple"]:
 			raise self.ValidationError("Type must be 'double' or 'simple'")
 		self.tag_type = tag_type
+		if content is not None:
+			if self.tag_type == "simple":
+				raise self.ValidationError("Simple tags cannot have content")
+			self.add_content(content)
 
 	def __str__(self):
 		if self.tag_type == "double":
@@ -84,7 +86,6 @@ class Text(str):
 
 
 if __name__ == "__main__":
-
 	try:
 		elem = Elem(
 			tag="html",
@@ -119,7 +120,6 @@ if __name__ == "__main__":
 				),
 			],
 		)
-	except Elem.ValidationError:
-		print(Elem.ValidationError)
-
-	print(elem)
+		print(elem)
+	except Elem.ValidationError as e:
+		print(e)
