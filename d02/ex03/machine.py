@@ -30,7 +30,7 @@ class CoffeeMachine:
 
 if __name__ == "__main__":
 	coffeeMachine = CoffeeMachine()
-	for i in range(10):
+	for i in range(15):
 		print(f"[ORDER {i + 1} - {coffeeMachine.servings} servings left]")
 		try:
 			print(
