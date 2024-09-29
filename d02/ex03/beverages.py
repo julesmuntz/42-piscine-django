@@ -52,7 +52,7 @@ class Cappuccino(HotBeverage):
 		return "Un po' di Italia nella sua tazza!"
 
 	def __str__(self) -> str:
-		return f"{hex_to_256('#C1AA8B')}{super().__str__()}\033[0m"  # Custom RGB color (212, 190, 102)
+		return f"{hex_to_256('#C1AA8B')}{super().__str__()}\033[0m"
 
 
 def hex_to_256(hex_color: str) -> str:
