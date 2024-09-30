@@ -143,12 +143,23 @@ class Page:
 					return False
 		return True
 
+	def __str__(self):
+		if self.is_valid():
+			if isinstance(self.elem, Html):
+				return "<!DOCTYPE html>\n" + str(self.elem)
+			return str(self.elem)
+		return ""
+
+	def write_to_file(self, filename: str):
+		with open(filename, "w") as f:
+			f.write(str(self))
+
 
 def print_status(page: Page, rule: int):
 	if page.is_valid():
-		print(f"{hex_to_256('#00FF00')}The page is valid (Rule {rule})")
+		print(f"{hex_to_256('#00FF00')}The page is valid (Rule {rule})\033[0m")
 	else:
-		print(f"{hex_to_256('#FF0000')}The page is invalid (Rule {rule})")
+		print(f"{hex_to_256('#FF0000')}The page is invalid (Rule {rule})\033[0m")
 
 
 if __name__ == "__main__":
@@ -180,3 +191,19 @@ if __name__ == "__main__":
 		print_status(page, rule)
 	for page, rule in invalid_cases:
 		print_status(page, rule)
+
+	page = Page(
+		Html(
+			content=[
+				Head(content=[Title(content=[Text("test")])]),
+				Body(
+					content=[
+						H1(content=[Text("test")]),
+						H2(content=[Text("test")]),
+					]
+				),
+			],
+		)
+	)
+	page.write_to_file("test.html")
+	print(page)
