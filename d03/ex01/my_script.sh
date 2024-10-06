@@ -1,11 +1,11 @@
 #!/bin/bash
 
-python -m pip --version
+python3 -m pip --version
 
-python -m pip install git+https://github.com/jaraco/path.git \
+python3 -m pip install git+https://github.com/jaraco/path \
+	--pre \
 	--target=local_lib \
 	--upgrade \
 	--log local_lib/installation.log
 
-python my_program.py
-
+python3 my_program.py
