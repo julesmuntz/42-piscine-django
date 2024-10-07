@@ -12,6 +12,8 @@ def get_wikipedia_page(query: str):
 	if page.status_code != 200:
 		return ""
 	soup = BeautifulSoup(page.content, "html.parser")
+	if not soup:
+		return ""
 	return soup
 
 
@@ -20,8 +22,6 @@ def find_first_link(query: str, visited: set):
 	if not soup:
 		return ""
 	content_div = soup.find("div", class_="mw-content-ltr mw-parser-output")
-	title_span = soup.find("h1", id="firstHeading")
-	print(title_span.text)
 	for paragraph in content_div.find_all(
 		["p", "ul", "ol", "li", "dl", "dt"], recursive=False
 	):
@@ -32,9 +32,13 @@ def find_first_link(query: str, visited: set):
 		for link in paragraph.find_all("a", href=True):
 			if link["href"].startswith("/wiki/Help:"):
 				continue
-			link_title = link["href"].split("/")[-1].replace("_", " ")
-			if link_title not in visited:
-				return link_title
+			next_query = link["href"].split("/")[-1].replace("_", " ")
+			soup = get_wikipedia_page(next_query)
+			if not soup:
+				continue
+			next_title = soup.find("h1", id="firstHeading")
+			if next_title and next_title.text not in visited:
+				return next_title.text
 	return ""
 
 
@@ -51,10 +55,15 @@ def roads_to_philosophy(query: str):
 		visited.add(query)
 		query = find_first_link(query, visited)
 		if not query:
-			raise Exception(f'No results for "{query}".')
+			return ""
+		if count <= 0:
+			print(f"{title_span.text}")
 		count += 1
-		if query == "Philosophy":
-			print(query)
+		dashes = count - len(str(count)) + 1
+		if count > 0 and query != "Philosophy":
+			print(f"├─{count}{dashes * '─'}{query}")
+		else:
+			print(f"└─{count}{dashes * '─'}{query}")
 			print(f"{count} roads from {title_span.text} to philosophy !")
 			return query
 	if query in visited:
