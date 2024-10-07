@@ -4,15 +4,21 @@ import sys
 
 
 def get_wikipedia_page(query: str):
+	if not query:
+		return ""
 	page = requests.get(f"https://en.wikipedia.org/wiki/{query}")
 	if page.status_code != 200:
-		raise Exception("Failed to retrieve the page.")
+		page = requests.get(f"https://fr.wikipedia.org/wiki/{query}")
+	if page.status_code != 200:
+		return ""
 	soup = BeautifulSoup(page.content, "html.parser")
 	return soup
 
 
 def find_first_link(query: str, visited: set):
 	soup = get_wikipedia_page(query)
+	if not soup:
+		return ""
 	content_div = soup.find("div", class_="mw-content-ltr mw-parser-output")
 	title_span = soup.find("h1", id="firstHeading")
 	print(title_span.text)
@@ -34,16 +40,22 @@ def find_first_link(query: str, visited: set):
 
 def roads_to_philosophy(query: str):
 	visited = set()
+	query = query.replace(" ", "_").title()
 	soup = get_wikipedia_page(query)
+	if not soup:
+		return ""
 	title_span = soup.find("h1", id="firstHeading")
 	query = title_span.text
+	count = 0
 	while query not in visited:
 		visited.add(query)
 		query = find_first_link(query, visited)
 		if not query:
 			raise Exception(f'No results for "{query}".')
+		count += 1
 		if query == "Philosophy":
 			print(query)
+			print(f"{count} roads from {title_span.text} to philosophy !")
 			return query
 	if query in visited:
 		raise Exception("It leads to an infinite loop !")
@@ -58,8 +70,6 @@ if __name__ == "__main__":
 		result = roads_to_philosophy(sys.argv[1])
 		if result == "":
 			raise Exception("It leads to a dead end !")
-		with open(f"{sys.argv[1].replace(' ', '_').lower()}.wiki", "w") as file:
-			file.write(result)
 	except Exception as e:
 		print(e)
 		exit(1)
