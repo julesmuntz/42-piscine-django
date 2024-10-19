@@ -1,0 +1,102 @@
+{% extends "ex01/templates/base.html" %}
+
+
+{% block title %}Ex01: Template engine.{% endblock %}
+
+
+{% block styles %}
+<style>
+	body {
+		background-color: #f8f8f8;
+		color: #333;
+		margin: 0;
+		padding: 0;
+		font-family: Helvetica, Arial, sans-serif;
+	}
+
+	main {
+		margin-top: 20px;
+		margin-bottom: 75px;
+		text-align: justify;
+		width: 75vw;
+		margin: auto;
+	}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="flex w-full flex-col gap-1 empty:hidden first:pt-[3px]">
+	<div class="markdown prose w-full break-words dark:prose-invert dark">
+		<p>In Django, the <strong>template engine</strong> is the part of the framework that handles rendering HTML
+			pages by combining templates with data from the views. Here’s how it works in Django:</p>
+		<ol>
+			<li>
+				<p><strong>Template File</strong>:</p>
+				<ul>
+					<li>In Django, templates are stored in a <code>templates/</code> directory. These files contain
+						static HTML mixed with special Django Template Language (DTL) syntax for dynamic content.</li>
+					<li>Example template (stored as <code>home.html</code>):
+						<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>{% verbatim %}{{ title }}{% endverbatim %}&lt;/<span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>{% verbatim %}Welcome to {{ site_name }}!{% endverbatim %}<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+</code></div></div></pre>Here, <code>{{ title }}</code> and <code>{{ site_name }}</code> are placeholders for dynamic
+						content that will be inserted.
+					</li>
+				</ul>
+			</li>
+			<li>
+				<p><strong>View Function</strong>:</p>
+				<ul>
+					<li>The view function (in <code>views.py</code>) processes the incoming request and passes data (as
+						a dictionary) to the template. It tells Django to render a specific template and provides the
+						values for placeholders in that template.</li>
+					<li>Example view function:
+						<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-python"><span class="hljs-keyword">from</span> django.shortcuts <span class="hljs-keyword">import</span> render
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">home</span>(<span class="hljs-params">request</span>):
+    context = {
+        <span class="hljs-string">'title'</span>: <span class="hljs-string">'Home Page'</span>,
+        <span class="hljs-string">'site_name'</span>: <span class="hljs-string">'MyWebsite'</span>
+    }
+    <span class="hljs-keyword">return</span> render(request, <span class="hljs-string">'home.html'</span>, context)
+</code></div></div></pre>In this example, the <code>context</code> dictionary contains the values
+						<code>Home Page</code> and <code>MyWebsite</code> for the <code>title</code> and
+						<code>site_name</code> placeholders.
+					</li>
+				</ul>
+			</li>
+			<li>
+				<p><strong>Rendering the Template</strong>:</p>
+				<ul>
+					<li>Django’s template engine takes the <code>home.html</code> template and the <code>context</code>
+						dictionary from the view function.</li>
+					<li>It replaces the placeholders <code>{{ title }}</code> and <code>{{ site_name }}</code> with the
+						actual values from the context: <code>'Home Page'</code> and <code>'MyWebsite'</code>.</li>
+				</ul>
+			</li>
+			<li>
+				<p><strong>Returning the Response</strong>:</p>
+				<ul>
+					<li>After rendering the template with the dynamic data, Django returns the complete HTML page as the
+						HTTP response.</li>
+					<li>The client (browser) receives this response and displays the fully rendered static page:
+						<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-html"><span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Home Page<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Welcome to MyWebsite!<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+</code></div></div></pre>
+					</li>
+				</ul>
+			</li>
+		</ol>
+		<h3>In Summary:</h3>
+		<ul>
+			<li><strong>Template file</strong>: Contains HTML with placeholders (<code>{{ ... }}</code>) for dynamic
+				content.</li>
+			<li><strong>View function</strong>: Gathers data and sends it to the template.</li>
+			<li><strong>Django template engine</strong>: Combines the template and the data, replacing the placeholders
+				with actual values.</li>
+			<li><strong>Final output</strong>: A complete HTML page is sent to the user.</li>
+		</ul>
+		<p>Django's template engine is what transforms the templates with data into fully rendered web pages!</p>
+	</div>
+</div>
+{% endblock %}
