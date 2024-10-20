@@ -1,0 +1,36 @@
+.log {
+	list-style-type: none;
+}
+
+.log-move {
+	list-style-type: none;
+	position: relative;
+}
+
+.log-move li:first-child {
+	animation: fadeInStatic 1s forwards;
+}
+
+.log-move li {
+	animation: shiftDown 0.5s forwards;
+}
+
+@keyframes shiftDown {
+	from {
+		transform: translateY(-10px);
+	}
+
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeInStatic {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}

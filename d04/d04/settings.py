@@ -116,9 +116,12 @@ STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
 	BASE_DIR / "ex01/static",
+	BASE_DIR / "ex02/static",
 ]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOG_FILE = "ex02/form.log"
