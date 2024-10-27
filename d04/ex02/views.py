@@ -21,6 +21,8 @@ def writeLog(query: str) -> None:
 
 def readLog() -> list[str]:
 	path = settings.LOG_FILE
+	if not os.path.exists(path):
+		open(path, "w").close()
 	with open(path, "r") as file:
 		return file.readlines()
 
