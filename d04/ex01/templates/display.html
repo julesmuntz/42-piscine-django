@@ -1,0 +1,128 @@
+{% extends "ex01/templates/base.html" %}
+
+
+{% block title %}Ex01: Display process of a static page.{% endblock %}
+
+
+{% block styles %}
+<style>
+	body {
+		background-color: #f8f8f8;
+		color: #333;
+		margin: 0;
+		padding: 0;
+		font-family: Helvetica, Arial, sans-serif;
+	}
+
+	main {
+		margin-top: 20px;
+		margin-bottom: 75px;
+		text-align: justify;
+		width: 75vw;
+		margin: auto;
+	}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="markdown prose w-full break-words dark:prose-invert dark">
+	<p>In Django, the process of displaying a static web page using a simple template and a view, from the request to
+		the response, involves the following steps:</p>
+	<h3>1. <strong>Client Request</strong></h3>
+	<ul>
+		<li>The user makes an HTTP request by entering a URL or clicking a link in their browser.</li>
+		<li>This request is sent to the Django server, typically in the form of an HTTP GET request if the user is
+			simply trying to load a page.</li>
+	</ul>
+	<h3>2. <strong>URL Routing</strong></h3>
+	<ul>
+		<li>The Django server receives the request and checks the URL patterns defined in the <code>urls.py</code> file
+			to determine which view should handle the request.</li>
+		<li>Each URL pattern corresponds to a specific view, so Django matches the incoming URL with the appropriate
+			view function or class.</li>
+	</ul>
+	<p>Example in <code>urls.py</code>:</p>
+	<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-python"><span class="hljs-keyword">from</span> django.urls <span class="hljs-keyword">import</span> path
+<span class="hljs-keyword">from</span> . <span class="hljs-keyword">import</span> views
+
+urlpatterns = [
+    path(<span class="hljs-string">''</span>, views.home, name=<span class="hljs-string">'home'</span>),  <span class="hljs-comment"># Root URL maps to the 'home' view</span>
+]
+</code></div></div></pre>
+	<h3>3. <strong>View Processing</strong></h3>
+	<ul>
+		<li>Once the correct view is identified, Django calls the view function (or class-based view) associated with
+			the matched URL.</li>
+		<li>The view is responsible for handling the request. In the case of a static web page, the view doesn’t need to
+			perform complex logic; it typically just prepares to render a template.</li>
+	</ul>
+	<p>Example view in <code>views.py</code>:</p>
+	<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-python"><span class="hljs-keyword">from</span> django.shortcuts <span class="hljs-keyword">import</span> render
+
+<span class="hljs-keyword">def</span> <span class="hljs-title function_">home</span>(<span class="hljs-params">request</span>):
+    <span class="hljs-keyword">return</span> render(request, <span class="hljs-string">'home.html'</span>)  <span class="hljs-comment"># Render the 'home.html' template</span>
+</code></div></div></pre>
+	<ul>
+		<li>In this example, the <code>home</code> view uses Django’s <code>render()</code> function, which takes two
+			main arguments:<ul>
+				<li><code>request</code>: The HTTP request object.</li>
+				<li><code>'home.html'</code>: The name of the template to be rendered.</li>
+			</ul>
+		</li>
+	</ul>
+	<h3>4. <strong>Template Rendering</strong></h3>
+	<ul>
+		<li>The view calls Django’s template engine to render the template. Templates are HTML files stored in a
+			<code>templates/</code> directory.
+		</li>
+		<li>The template engine processes the <code>home.html</code> file and converts it into a complete HTML document.
+			Since it’s a static page, the template contains mostly plain HTML without dynamic content (or with very
+			little dynamic content).</li>
+	</ul>
+	<p>Example <code>home.html</code> template:</p>
+	<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Home<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Welcome to My Static Page<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>This is a simple static page using Django templates.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span>
+</code></div></div></pre>
+	<ul>
+		<li>In this case, the template engine simply reads the static HTML and prepares it for the response.</li>
+	</ul>
+	<h3>5. <strong>Response Creation</strong></h3>
+	<ul>
+		<li>After the template engine processes the <code>home.html</code> template, the view function returns the fully
+			rendered HTML page as an HTTP response.</li>
+		<li>Django wraps the rendered template in an <code>HttpResponse</code> object and sends it back to the client
+			(browser).</li>
+	</ul>
+	<p>The relevant part of the view would look like this:</p>
+	<pre class="!overflow-visible"><div class="overflow-y-auto p-4" dir="ltr"><code class="!whitespace-pre hljs language-python"><span class="hljs-keyword">return</span> render(request, <span class="hljs-string">'home.html'</span>)
+</code></div></div></pre>
+	<h3>6. <strong>Client Receives the Response</strong></h3>
+	<ul>
+		<li>The client (user’s browser) receives the HTTP response from the server.</li>
+		<li>The browser then interprets and displays the HTML page for the user, showing the static content that was
+			defined in the template.</li>
+	</ul>
+	<h3>Summary of the Flow:</h3>
+	<ol>
+		<li><strong>Client Request</strong>: User makes an HTTP request to load a web page.</li>
+		<li><strong>URL Routing</strong>: Django matches the request URL to a specific view using <code>urls.py</code>.
+		</li>
+		<li><strong>View Processing</strong>: The view function is called, and it prepares to render a specific
+			template.</li>
+		<li><strong>Template Rendering</strong>: Django’s template engine processes the template (HTML) and fills in any
+			dynamic content (if any).</li>
+		<li><strong>Response Creation</strong>: The view returns the rendered HTML as an HTTP response.</li>
+		<li><strong>Client Response</strong>: The client’s browser receives and displays the static web page.</li>
+	</ol>
+	<p>This is the process that Django follows to render and display a static web page using templates and views.</p>
+</div>
+{% endblock %}

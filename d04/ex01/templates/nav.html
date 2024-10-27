@@ -1,0 +1,11 @@
+{% block nav %}
+<div class="header">
+	<nav>
+		<ul style="display: flex; list-style-type: None; justify-content: center; gap: 50px; ">
+			{% for key, value in pages.items %}
+			<li><a href="{{ value }}">{{ key }}</a></li>
+			{% endfor %}
+		</ul>
+	</nav>
+</div>
+{% endblock %}

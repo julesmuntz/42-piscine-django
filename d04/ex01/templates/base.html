@@ -1,0 +1,26 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>{% block title %}{% endblock %}</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="{% static 'base.css' %}">
+	{% if style is 1 %}
+	<link rel="stylesheet" href="{% static 'style1.css' %}">
+	{% else %}
+	<link rel="stylesheet" href="{% static 'style2.css' %}">
+	{% endif %}
+	{% block styles %} {% endblock %}
+</head>
+
+<body>
+	{% include 'ex01/templates/nav.html' %}
+	<main>
+		{% block content %}{% endblock %}
+	</main>
+</body>
+
+</html>
