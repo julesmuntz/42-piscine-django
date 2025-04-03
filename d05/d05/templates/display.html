@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block content %}
+	<table>
+		<tr>
+			<th>Title</th>
+			<th>Episode</th>
+			<th>Opening Crawl</th>
+			<th>Director</th>
+			<th>Producer</th>
+			<th>Release Date</th>
+		</tr>
+		{% for row in data %}
+			<tr>
+				<td>{{ row.title }}</td>
+				<td>{{ row.episode_nb }}</td>
+				<td>{{ row.opening_crawl }}</td>
+				<td>{{ row.director }}</td>
+				<td>{{ row.producer }}</td>
+				<td>{{ row.release_date }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
