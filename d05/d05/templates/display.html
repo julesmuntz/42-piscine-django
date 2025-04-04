@@ -1,22 +1,52 @@
-{% extends 'base.html' %} {% block content %}
-	<table>
-		<tr>
-			<th>Title</th>
-			<th>Episode</th>
-			<th>Opening Crawl</th>
-			<th>Director</th>
-			<th>Producer</th>
-			<th>Release Date</th>
-		</tr>
-		{% for row in data %}
-			<tr>
-				<td>{{ row.title }}</td>
-				<td>{{ row.episode_nb }}</td>
-				<td>{{ row.opening_crawl }}</td>
-				<td>{{ row.director }}</td>
-				<td>{{ row.producer }}</td>
-				<td>{{ row.release_date }}</td>
-			</tr>
-		{% endfor %}
-	</table>
+{% extends 'd05/templates/base.html' %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/star_wars.css' %}" />
+{% if message %}
+<p class="message">{{ message }}</p>
+{% else %}
+<div class="intro-text">
+	A long time ago in a galaxy far,<br>
+	far away....
+</div>
+
+<div class="logo-container">
+	<img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Star_Wars_Yellow_Logo.svg" alt="Star Wars Logo"
+		class="sw-logo">
+</div>
+
+<div class="crawl-container">
+	<div class="crawl-content">
+		<div class="opening-crawl">
+			{% for row in rows %}
+			<div class="crawl-entry">
+				<h2>
+					<span class="episode-number">Episode {{ row.0 }}</span>
+					<span class="episode-title">{{ row.1 }}</span>
+				</h2>
+
+				<div class="credits-info">
+					<div class="credits-info-item">
+						<p>Released<br> {{ row.4 }}</p>
+					</div>
+					<div class="credits-info-item">
+						<p>Directed by<br> {{ row.2|upper }}</p>
+					</div>
+					<div class="credits-info-item">
+						<p>Produced by<br> {{ row.3|upper|safe }}</p>
+					</div>
+				</div>
+
+				{% if row.5 %}
+				<p class="crawl-text">{{ row.5|linebreaksbr }}</p>
+				{% else %}
+				<p class="crawl-text">No opening crawl available...</p>
+				{% endif %}
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,259 @@
+@font-face {
+	font-family: 'News Gothic Bold';
+	src: url('/static/fonts/NewsGothicBold.woff2') format('woff2'),
+		url('/static/fonts/NewsGothicBold.woff') format('woff');
+}
+
+@font-face {
+	font-family: 'Univers Light Ultra Condensed';
+	src: url('/static/fonts/UniversLightUltraCondensed.woff2') format('woff2'),
+		url('/static/fonts/UniversLightUltraCondensed.woff') format('woff');
+}
+
+@font-face {
+	font-family: 'Trade Gothic';
+	src: url('/static/fonts/TradeGothic.woff2') format('woff2'),
+		url('/static/fonts/TradeGothic.woff') format('woff');
+}
+
+body {
+	background-color: black;
+	overflow: hidden;
+	height: 100vh;
+	margin: 0;
+	perspective: 800px;
+	display: flex;
+	justify-content: center;
+	background-image: url('http://i.imgur.com/VwiVtPS.png');
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.intro-text {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	color: #1FB2BC;
+	font-family: 'Arial Narrow', sans-serif;
+	font-weight: normal;
+	font-size: min(5vw, 5vh);
+	text-align: left;
+	margin: 0 auto;
+	line-height: 1.6;
+	opacity: 0;
+	z-index: 20;
+	animation: fadeInOut 4s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+	0% {
+		opacity: 0;
+	}
+
+	15% {
+		opacity: 1;
+	}
+
+	85% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+.logo-container {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	z-index: 10;
+	width: 100%;
+	max-width: 500px;
+	text-align: center;
+	opacity: 0;
+	animation: showLogo 0s linear 5s forwards;
+}
+
+@keyframes showLogo {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.sw-logo {
+	width: 100%;
+	max-width: 100%;
+	height: auto;
+	transform: scale(2);
+	transform-origin: center center;
+	animation: shrinkLogo 5s linear 5s forwards;
+}
+
+@keyframes shrinkLogo {
+	0% {
+		transform: scale(2);
+		opacity: 1;
+	}
+
+	20% {
+		transform: scale(1.6);
+		opacity: 1;
+	}
+
+	40% {
+		transform: scale(1.2);
+		opacity: 0.9;
+	}
+
+	60% {
+		transform: scale(0.8);
+		opacity: 0.8;
+	}
+
+	70% {
+		transform: scale(0.6);
+		opacity: 0.7;
+	}
+
+	80% {
+		transform: scale(0.4);
+		opacity: 0.6;
+	}
+
+	90% {
+		transform: scale(0.2);
+		opacity: 0.4;
+	}
+
+	100% {
+		transform: scale(0);
+		opacity: 0;
+	}
+}
+
+.crawl-container {
+	position: fixed;
+	bottom: 0;
+	left: 50%;
+	transform-origin: 50% 100%;
+	transform: translateX(-50%) perspective(400px) rotateX(10deg);
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	opacity: 0;
+	animation: crawl 240s linear 8s forwards;
+}
+
+.message {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	text-align: center;
+	font-size: 3vw;
+	text-transform: uppercase;
+	margin-top: 50vh;
+}
+
+@keyframes crawl {
+	0% {
+		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(100%);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(-500%);
+		opacity: 1;
+	}
+}
+
+@keyframes fade {
+
+	0%,
+	90% {
+		opacity: 1;
+	}
+
+	100% {
+		opacity: 0;
+	}
+}
+
+.opening-crawl {
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	text-align: justify;
+	font-size: min(5vw, 5vh);
+	line-height: 1.5;
+	width: 100%;
+	padding: 0 2vw;
+}
+
+.opening-crawl p {
+	margin-bottom: 4vh;
+}
+
+.crawl-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin: 0 auto;
+	padding-top: 0;
+}
+
+.crawl-entry {
+	margin-bottom: 20vh;
+	width: 100%;
+}
+
+.crawl-entry h2 {
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	text-align: center;
+	font-size: min(9vw, 9vh);
+	margin-bottom: 3vh;
+	line-height: 1.2;
+}
+
+.episode-number {
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	margin-right: 0.5vw;
+	font-size: min(8vw, 8vh);
+	display: block;
+	margin-bottom: 1vh;
+}
+
+.episode-title {
+	font-family: 'Univers Light Ultra Condensed', 'Arial Narrow', sans-serif;
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: min(10vw, 10vh);
+	display: block;
+}
+
+.credits-info {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	text-align: center;
+	font-size: min(4vw, 4vh);
+	display: flex;
+	justify-content: space-around;
+	width: 100%;
+	margin: 2vh 0;
+}
+
+.credits-info-item {
+	flex: 1;
+	padding: 0 1vw;
+}
+
+.crawl-text {
+	margin-top: 5vh;
+	width: 100%;
+}

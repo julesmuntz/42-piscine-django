@@ -38,7 +38,9 @@ INSTALLED_APPS = [
 	"django.contrib.sessions",
 	"django.contrib.messages",
 	"django.contrib.staticfiles",
-	"ex00",
+	"ex00.apps.Ex00Config",
+	"ex01.apps.Ex01Config",
+	"ex02.apps.Ex02Config",
 ]
 
 MIDDLEWARE = [
@@ -121,14 +123,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+STATIC_ROOT = "static"
+
 STATIC_URL = "static/"
 
-STATICFILES_DIRS = [BASE_DIR / "d05"]
-
-STATIC_ROOT = BASE_DIR / "static"
-
+STATICFILES_DIRS = [
+	BASE_DIR / "ex02/static",
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOG_FILE = "ex02/form.log"

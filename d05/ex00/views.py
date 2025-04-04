@@ -10,7 +10,7 @@ def create_movies_table(conn):
 			CREATE TABLE ex00_movies (
 				title VARCHAR(64) NOT NULL,
 				episode_nb INTEGER PRIMARY KEY,
-				opening_crawl TEXT NOT NULL,
+				opening_crawl TEXT,
 				director VARCHAR(32) NOT NULL,
 				producer VARCHAR(128) NOT NULL,
 				release_date DATE NOT NULL
@@ -35,13 +35,11 @@ def init(request):
 		port=config("DB_PORT"),
 	) as conn:
 		cur = conn.cursor()
-		cur.execute(
-			"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='ex00_movies')"
-		)
+		cur.execute("SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='ex00_movies')")
 		exist = cur.fetchone()[0]
 		cur.close()
 		if not exist:
-			message = "relation \"ex00_movies\" does not exist"
+			message = 'relation "ex00_movies" does not exist'
 		if request.method == "POST":
 			message = create_movies_table(conn)
 
