@@ -144,12 +144,12 @@ body {
 	bottom: 0;
 	left: 50%;
 	transform-origin: 50% 100%;
-	transform: translateX(-50%) perspective(400px) rotateX(10deg);
+	transform: translateX(-50%) perspective(400px) rotateX(22.5deg);
 	width: 100%;
 	display: flex;
 	justify-content: center;
 	opacity: 0;
-	animation: crawl 240s linear 8s forwards;
+	animation: crawl 100s linear 8s forwards;
 }
 
 .message {
@@ -163,12 +163,12 @@ body {
 
 @keyframes crawl {
 	0% {
-		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(100%);
+		transform: translateX(-50%) perspective(400px) rotateX(22.5deg) translateY(100%);
 		opacity: 1;
 	}
 
 	100% {
-		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(-500%);
+		transform: translateX(-50%) perspective(400px) rotateX(22.5deg) translateY(-500%);
 		opacity: 1;
 	}
 }
@@ -256,4 +256,32 @@ body {
 .crawl-text {
 	margin-top: 5vh;
 	width: 100%;
+}
+
+.button {
+	background-color: transparent;
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	padding: 10px 20px;
+	font-size: 3vw;
+	cursor: pointer;
+	position: fixed;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	display: block;
+	border-color: #0799D2;
+	border-width: 2px;
+	border-style: solid;
+	z-index: 100;
+}
+
+.button:hover {
+	color: #1FB2BC;
+	border-color: #1FB2BC;
+}
+
+.button:active {
+	color: #FFE81F;
+	border-color: #FFE81F;
 }

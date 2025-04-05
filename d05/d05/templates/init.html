@@ -1,9 +1,0 @@
-{% extends 'd05/templates/base.html' %}
-
-{% block content %}
-<form method="post">
-	{% csrf_token %}
-	<button type="submit">init "ex00_movies" table</button>
-</form>
-{{ message }}
-{% endblock %}

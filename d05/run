@@ -16,4 +16,5 @@ python3 manage.py makemigrations
 if python3 manage.py showmigrations --plan | grep '\[ \]' >/dev/null 2>&1; then
 	python3 manage.py migrate
 fi
+python3 manage.py collectstatic --noinput --clear -v=0
 python3 manage.py runserver
