@@ -1,0 +1,14 @@
+{% extends 'd05/templates/form.html' %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+    <select name="title" class="select-dropdown">
+        {% for title in titles %}
+            <option value="{{ title }}">{{ title }}</option>
+        {% endfor %}
+    </select>
+    {{ block.super }}
+</form>
+{% endblock %}

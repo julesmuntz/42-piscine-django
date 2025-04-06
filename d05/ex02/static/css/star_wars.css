@@ -143,32 +143,51 @@ body {
 	position: fixed;
 	bottom: 0;
 	left: 50%;
-	transform-origin: 50% 100%;
-	transform: translateX(-50%) perspective(400px) rotateX(22.5deg);
-	width: 100%;
+	width: 100vw;
 	display: flex;
 	justify-content: center;
 	opacity: 0;
-	animation: crawl 100s linear 8s forwards;
+	animation: tableView 10s linear 4s forwards;
+	height: 150vh;
+	clip-path: none;
+}
+
+.message-container {
+	display: flex;
+	flex-direction: column;
+	margin-top: 50vh;
 }
 
 .message {
 	color: #0799D2;
 	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
 	text-align: center;
-	font-size: 3vw;
+	font-size: 2.5vw;
 	text-transform: uppercase;
-	margin-top: 50vh;
+	margin: 0;
+	max-width: 80vw;
+	line-height: 1.2;
 }
 
-@keyframes crawl {
+.message-error {
+	color: #FF3B30;
+	text-transform: none;
+	text-align: left;
+}
+
+@keyframes tableView {
 	0% {
-		transform: translateX(-50%) perspective(400px) rotateX(22.5deg) translateY(100%);
+		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(100%);
+		opacity: 1;
+	}
+
+	90% {
+		transform: translateX(-50%) perspective(400px) rotateX(10deg) translateY(0);
 		opacity: 1;
 	}
 
 	100% {
-		transform: translateX(-50%) perspective(400px) rotateX(22.5deg) translateY(-500%);
+		transform: translateX(-50%) translateY(0);
 		opacity: 1;
 	}
 }
@@ -200,11 +219,19 @@ body {
 }
 
 .crawl-content {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	margin: 0 auto;
-	padding-top: 0;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 100vh;
+	overflow-y: scroll;
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+	will-change: transform;
+	padding: 0 2vw;
+}
+
+.crawl-content::-webkit-scrollbar {
+	display: none;
 }
 
 .crawl-entry {
@@ -281,7 +308,101 @@ body {
 	border-color: #1FB2BC;
 }
 
-.button:active {
+.table-wrapper {
+	position: relative;
+	min-height: 100%;
+	width: 100%;
+	bottom: -25px;
+}
+
+.star-wars-table {
 	color: #FFE81F;
-	border-color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	width: 100%;
+	border-collapse: collapse;
+	font-size: min(2vw, 2vh);
+	text-align: left;
+	position: relative;
+	z-index: 1;
+}
+
+.star-wars-table th,
+.star-wars-table td {
+	padding: 1vh 1vw;
+	border-bottom: 1px solid rgba(7, 153, 210, 0.3);
+	vertical-align: top;
+	white-space: nowrap;
+}
+
+.star-wars-table td:last-child {
+	white-space: normal;
+}
+
+.star-wars-table td:nth-child(2) {
+	font-family: 'Univers Light Ultra Condensed', 'Arial Narrow', sans-serif;
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: min(2.25vw, 2.25vh);
+}
+
+.star-wars-table td:nth-child(4) {
+	white-space: nowrap;
+}
+
+.star-wars-table td:nth-child(4) br+* {
+	margin-top: 0.5em;
+}
+
+.star-wars-table th {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	text-transform: uppercase;
+	border-bottom: 2px solid #0799D2;
+}
+
+.star-wars-table tbody tr:hover {
+	background-color: rgba(7, 153, 210, 0.1);
+}
+
+.select-dropdown {
+	background-color: transparent;
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	padding: 10px 20px;
+	font-size: 2vw;
+	border: 2px solid #0799D2;
+	width: auto;
+	cursor: pointer;
+	display: block;
+	margin: 20px auto;
+	outline: none;
+}
+
+.select-dropdown option {
+	background-color: black;
+	color: #0799D2;
+}
+
+.select-dropdown:hover {
+	color: #1FB2BC;
+	border-color: #1FB2BC;
+}
+
+.skip-button {
+	background-color: transparent;
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	padding: 5px 15px;
+	font-size: 1.5vw;
+	cursor: pointer;
+	position: fixed;
+	top: 20px;
+	right: 20px;
+	border: 2px solid #0799D2;
+	z-index: 1000;
+}
+
+.skip-button:hover {
+	color: #1FB2BC;
+	border-color: #1FB2BC;
 }

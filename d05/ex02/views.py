@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from ex00.views import get_db_connection
-from ex03.models import Movies
+from importlib import import_module
 from datetime import datetime
 
 
-def populate(request, table_name, use_sql=True):
+def populate(request, table_name, use_sql, page_title):
 	movies_data = [
 		(
 			1,
@@ -118,13 +118,19 @@ Leia has sent her most daring pilot on a secret mission to Jakku, where an old a
 							conn.commit()
 							messages.append("OK")
 						except Exception as e:
-							messages.append(str(e))
+							error_parts = str(e).split('DETAIL:')
+							if len(error_parts) > 1:
+								messages.extend([part.strip() for part in error_parts])
+							else:
+								messages.append(str(e))
 							conn.rollback()
 			except Exception as e:
 				messages.append(str(e))
 			finally:
 				conn.close()
 		else:
+			module = import_module(f"ex{int(table_name[2:4]):02d}.models")
+			Movies = module.Movies
 			for movie in movies_data:
 				try:
 					Movies.objects.create(
@@ -142,7 +148,11 @@ Leia has sent her most daring pilot on a secret mission to Jakku, where an old a
 	return render(
 		request,
 		"d05/templates/form.html",
-		{"message": " ".join(messages) if messages else "", "label": f"Insert movies into {table_name}"},
+		{
+			"title": page_title,
+			"messages": messages,
+			"label": f"Insert movies into {table_name}",
+		},
 	)
 
 
@@ -159,46 +169,58 @@ def to_roman(num):
 	return roman_num
 
 
-def display(request, table_name, use_sql=True):
-	if use_sql:
-		try:
-			conn = get_db_connection()
-			with conn.cursor() as cur:
+def display(request, table_name, use_sql, page_title):
+	messages = []
+	roman_rows = []
+	try:
+		if use_sql:
+			with get_db_connection() as conn:
+				cur = conn.cursor()
 				cur.execute(
-					f"SELECT episode_nb, title, director, producer, release_date, opening_crawl FROM {table_name} ORDER BY episode_nb;"
+					f"SELECT episode_nb, title, director, producer, release_date, opening_crawl "
+					f"FROM {table_name} ORDER BY episode_nb;"
 				)
 				rows = cur.fetchall()
-			if not rows:
-				return render(request, "d05/templates/display.html", {"message": "No data available"})
-			roman_rows = []
-			for row in rows:
-				producer_names = row[3].split(", ")
-				formatted_producers = "<br>".join(producer_names)
-				roman_row = (to_roman(row[0]),) + row[1:3] + (formatted_producers,) + row[4:]
-				roman_rows.append(roman_row)
-			return render(request, "d05/templates/display.html", {"rows": roman_rows})
-		except Exception:
-			return render(request, "d05/templates/display.html", {"message": "No data available"})
-	else:
-		try:
+				if rows:
+					for row in rows:
+						producers = row[3].split(", ")
+						formatted_producers = "<br>".join(producers) if len(producers) > 1 else row[3]
+						roman_rows.append((to_roman(row[0]), row[1], row[2], formatted_producers, row[4], row[5]))
+				else:
+					messages = ["No data available"]
+		else:
+			module = import_module(f"ex{int(table_name[2:4]):02d}.models")
+			Movies = module.Movies
 			movies = Movies.objects.all().order_by("episode_nb")
-			if not movies:
-				return render(request, "d05/templates/display.html", {"message": "No data available"})
-
-			roman_rows = []
-			for movie in movies:
-				producer_names = movie.producer.split(", ")
-				formatted_producers = "<br>".join(producer_names)
-				roman_rows.append(
-					(
-						to_roman(movie.episode_nb),
-						movie.title,
-						movie.director,
-						formatted_producers,
-						movie.release_date,
-						movie.opening_crawl,
+			if movies:
+				for movie in movies:
+					producers = movie.producer.split(", ")
+					formatted_producers = "<br>".join(producers) if len(producers) > 1 else movie.producer
+					roman_rows.append(
+						(
+							to_roman(movie.episode_nb),
+							movie.title,
+							movie.director,
+							formatted_producers,
+							movie.release_date,
+							movie.opening_crawl,
+						)
 					)
-				)
-			return render(request, "d05/templates/display.html", {"rows": roman_rows})
-		except Exception:
-			return render(request, "d05/templates/display.html", {"message": "No data available"})
+			else:
+				messages = ["No data available"]
+	except Exception as e:
+		error_parts = str(e).split('DETAIL:')
+		if len(error_parts) > 1:
+			messages = [part.strip() for part in error_parts]
+		else:
+			messages = [str(e)]
+
+	return render(
+		request,
+		"d05/templates/display.html",
+		{
+			"title": page_title,
+			"messages": messages,
+			"rows": roman_rows,
+		},
+	)

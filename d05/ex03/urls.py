@@ -1,7 +1,7 @@
-from django.urls import path
-from ex02.views import populate, display
+from ex02.urls import get_urlpatterns as get_base_patterns
 
-urlpatterns = [
-	path("populate/", populate, {"table_name": "ex03_movies", "use_sql": False}),
-	path("display/", display, {"table_name": "ex03_movies", "use_sql": False}),
-]
+page_title = "ORM - Data Insertion"
+table_name = "ex03_movies"
+use_sql = False
+
+urlpatterns = get_base_patterns(table_name, use_sql, page_title)

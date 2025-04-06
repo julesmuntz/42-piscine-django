@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 	"ex01",
 	"ex02",
 	"ex03",
+	"ex04",
 ]
 
 MIDDLEWARE = [
@@ -136,5 +137,3 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-LOG_FILE = "ex02/form.log"

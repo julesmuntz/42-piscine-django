@@ -1,11 +1,20 @@
 {% extends 'd05/templates/base.html' %}
 
 {% block content %}
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/star_wars.css' %}" />
-{% if message %}
-<p class="message">{{ message }}</p>
+
+{% if messages %}
+<div class="message-container">
+	{% for message in messages %}
+	<p class="message {% if message == 'No data available' %}message{% else %}message-error{% endif %}">{{ message }}
+	</p>
+	{% endfor %}
+</div>
 {% else %}
+<button class="skip-button">Skip intro</button>
+
 <div class="intro-text">
 	A long time ago in a galaxy far,<br>
 	far away....
@@ -18,35 +27,49 @@
 
 <div class="crawl-container">
 	<div class="crawl-content">
-		<div class="opening-crawl">
-			{% for row in rows %}
-			<div class="crawl-entry">
-				<h2>
-					<span class="episode-number">Episode {{ row.0 }}</span>
-					<span class="episode-title">{{ row.1 }}</span>
-				</h2>
-
-				<div class="credits-info">
-					<div class="credits-info-item">
-						<p>Released<br> {{ row.4 }}</p>
-					</div>
-					<div class="credits-info-item">
-						<p>Directed by<br> {{ row.2|upper }}</p>
-					</div>
-					<div class="credits-info-item">
-						<p>Produced by<br> {{ row.3|upper|safe }}</p>
-					</div>
-				</div>
-
-				{% if row.5 %}
-				<p class="crawl-text">{{ row.5|linebreaksbr }}</p>
-				{% else %}
-				<p class="crawl-text">No opening crawl available...</p>
-				{% endif %}
-			</div>
-			{% endfor %}
+		<div class="table-wrapper">
+			<table class="star-wars-table">
+				<thead>
+					<tr>
+						<th>Episode</th>
+						<th>Title</th>
+						<th>Director</th>
+						<th>Producer</th>
+						<th>Release Date</th>
+						<th>Opening Crawl</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for row in rows %}
+					<tr>
+						<td>{{ row.0 }}</td>
+						<td>{{ row.1 }}</td>
+						<td>{{ row.2 }}</td>
+						<td>{{ row.3|safe }}</td>
+						<td>{{ row.4 }}</td>
+						<td>{% if row.5 %}{{ row.5|linebreaksbr }}{% else %}No opening crawl available...{% endif %}
+						</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
 		</div>
 	</div>
 </div>
+
+<script>
+	const skipButton = document.querySelector('.skip-button');
+	skipButton.addEventListener('click', function () {
+		document.querySelector('.intro-text').style.display = 'none';
+		document.querySelector('.logo-container').style.display = 'none';
+		document.querySelector('.crawl-container').style.animation = 'none';
+		document.querySelector('.crawl-container').style.opacity = '1';
+		document.querySelector('.crawl-container').style.transform = 'translateX(-50%) translateY(0)';
+		skipButton.remove();
+	});
+	setTimeout(() => {
+		skipButton.remove();
+	}, 10000);
+</script>
 {% endif %}
 {% endblock %}

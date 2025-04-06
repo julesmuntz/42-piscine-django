@@ -9,5 +9,9 @@
 	{% csrf_token %}
 	<button type="submit" class="button">{{ label }}</button>
 </form>
-<p class="message">{{ message }}</p>
+<div class="message-container">
+	{% for msg in messages %}
+	<p class="message {% if msg != 'OK' %}message-error{% endif %}">{{ msg }}</p>
+	{% endfor %}
+</div>
 {% endblock %}
