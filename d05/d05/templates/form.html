@@ -2,9 +2,6 @@
 
 {% block content %}
 
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/star_wars.css' %}" />
-
 <form method="post">
 	{% csrf_token %}
 	<button type="submit" class="button">{{ label }}</button>

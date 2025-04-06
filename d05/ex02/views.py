@@ -4,7 +4,7 @@ from importlib import import_module
 from datetime import datetime
 
 
-def populate(request, table_name, use_sql, page_title):
+def populate(request, table_name, page_title):
 	movies_data = [
 		(
 			1,
@@ -93,7 +93,7 @@ Leia has sent her most daring pilot on a secret mission to Jakku, where an old a
 	]
 	messages = []
 	if request.method == "POST":
-		if use_sql:
+		if page_title[:3] == "SQL":
 			try:
 				conn = get_db_connection()
 				with conn.cursor() as cur:
@@ -118,7 +118,7 @@ Leia has sent her most daring pilot on a secret mission to Jakku, where an old a
 							conn.commit()
 							messages.append("OK")
 						except Exception as e:
-							error_parts = str(e).split('DETAIL:')
+							error_parts = str(e).split("DETAIL:")
 							if len(error_parts) > 1:
 								messages.extend([part.strip() for part in error_parts])
 							else:
@@ -128,7 +128,7 @@ Leia has sent her most daring pilot on a secret mission to Jakku, where an old a
 				messages.append(str(e))
 			finally:
 				conn.close()
-		else:
+		elif page_title[:3] == "ORM":
 			module = import_module(f"ex{int(table_name[2:4]):02d}.models")
 			Movies = module.Movies
 			for movie in movies_data:
@@ -169,11 +169,11 @@ def to_roman(num):
 	return roman_num
 
 
-def display(request, table_name, use_sql, page_title):
+def display(request, table_name, page_title):
 	messages = []
 	roman_rows = []
 	try:
-		if use_sql:
+		if page_title[:3] == "SQL":
 			with get_db_connection() as conn:
 				cur = conn.cursor()
 				cur.execute(
@@ -183,37 +183,38 @@ def display(request, table_name, use_sql, page_title):
 				rows = cur.fetchall()
 				if rows:
 					for row in rows:
-						producers = row[3].split(", ")
-						formatted_producers = "<br>".join(producers) if len(producers) > 1 else row[3]
-						roman_rows.append((to_roman(row[0]), row[1], row[2], formatted_producers, row[4], row[5]))
+						roman_rows.append(
+							(
+								to_roman(row[0]),
+								row[1],
+								row[2],
+								row[3],
+								row[4],
+								row[5],
+							)
+						)
 				else:
 					messages = ["No data available"]
-		else:
+		elif page_title[:3] == "ORM":
 			module = import_module(f"ex{int(table_name[2:4]):02d}.models")
 			Movies = module.Movies
 			movies = Movies.objects.all().order_by("episode_nb")
 			if movies:
 				for movie in movies:
-					producers = movie.producer.split(", ")
-					formatted_producers = "<br>".join(producers) if len(producers) > 1 else movie.producer
 					roman_rows.append(
 						(
 							to_roman(movie.episode_nb),
 							movie.title,
 							movie.director,
-							formatted_producers,
+							movie.producer,
 							movie.release_date,
 							movie.opening_crawl,
 						)
 					)
 			else:
 				messages = ["No data available"]
-	except Exception as e:
-		error_parts = str(e).split('DETAIL:')
-		if len(error_parts) > 1:
-			messages = [part.strip() for part in error_parts]
-		else:
-			messages = [str(e)]
+	except Exception:
+		messages = ["No data available"]
 
 	return render(
 		request,

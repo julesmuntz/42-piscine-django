@@ -18,7 +18,7 @@
 
 body {
 	background-color: black;
-	overflow: hidden;
+	overflow-y: auto;
 	height: 100vh;
 	margin: 0;
 	perspective: 800px;
@@ -28,6 +28,8 @@ body {
 	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
+	background-attachment: fixed;
+	overflow: hidden;
 }
 
 .intro-text {
@@ -304,8 +306,8 @@ body {
 }
 
 .button:hover {
-	color: #1FB2BC;
-	border-color: #1FB2BC;
+	background-color: #0799d248;
+	color: rgba(255, 255, 255, 0.75);
 }
 
 .table-wrapper {
@@ -360,10 +362,6 @@ body {
 	border-bottom: 2px solid #0799D2;
 }
 
-.star-wars-table tbody tr:hover {
-	background-color: rgba(7, 153, 210, 0.1);
-}
-
 .select-dropdown {
 	background-color: transparent;
 	color: #0799D2;
@@ -403,6 +401,92 @@ body {
 }
 
 .skip-button:hover {
-	color: #1FB2BC;
-	border-color: #1FB2BC;
+	background-color: #0799d248;
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.hub-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	min-height: 100vh;
+	padding: 20px;
+	height: 100vh;
+	overflow-y: scroll;
+}
+
+.hub-container::-webkit-scrollbar {
+	display: none;
+}
+
+.hub-links {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	align-items: center;
+}
+
+.hub-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 30px;
+	width: 100%;
+	max-width: 1200px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.hub-button {
+	background-color: transparent;
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	padding: 10px 20px;
+	font-size: 1.2vh;
+	cursor: pointer;
+	border: 2px solid #0799D2;
+	text-decoration: none;
+	text-align: center;
+	min-width: 200px;
+	transition: all 0.05s ease;
+	text-transform: lowercase;
+}
+
+.hub-button:hover {
+	background-color: #0799d248;
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.exercise-group {
+	display: flex;
+	flex-direction: column;
+	background-color: rgba(0, 0, 0, 0.7);
+	border: 1px solid rgba(7, 153, 210, 0.3);
+	border-radius: 5px;
+	padding: 20px;
+}
+
+.exercise-header {
+	margin-bottom: 20px;
+	text-align: center;
+}
+
+.exercise-number {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	font-size: 2vh;
+	margin: 0;
+	text-align: left;
+}
+
+.exercise-title {
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	font-size: 1.5vh;
+	margin: 0;
+}
+
+.exercise-content {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
 }

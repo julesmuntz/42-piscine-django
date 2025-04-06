@@ -1,7 +1,6 @@
 from django.shortcuts import render
 import psycopg2
 from decouple import config
-from django.db import connection
 
 
 def get_db_connection():
@@ -14,19 +13,18 @@ def get_db_connection():
 	)
 
 
-def init(request, table_name, use_sql, page_title):
-	message = "OK"
+def init(request, table_name, page_title):
+	messages = []
 	try:
-		if use_sql:
-			with get_db_connection() as conn:
-				cur = conn.cursor()
-				cur.execute(f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')")
-				exist = cur.fetchone()[0]
-				if not exist:
-					message = f'relation "{table_name}" does not exist'
-				if request.method == "POST":
-					try:
-						command = f"""
+		with get_db_connection() as conn:
+			cur = conn.cursor()
+			cur.execute(f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')")
+			exist = cur.fetchone()[0]
+			if not exist:
+				messages = [f'relation "{table_name}" does not exist']
+			if request.method == "POST":
+				try:
+					command = f"""
 						CREATE TABLE {table_name} (
 							title VARCHAR(64) NOT NULL,
 							episode_nb INTEGER PRIMARY KEY,
@@ -36,22 +34,15 @@ def init(request, table_name, use_sql, page_title):
 							release_date DATE NOT NULL
 						)
 						"""
-						cur.execute(command)
-						conn.commit()
-						message = "OK"
-					except (psycopg2.DatabaseError, Exception) as error:
-						conn.rollback()
-						message = str(error)
-		else:
-			with connection.cursor() as cur:
-				cur.execute(f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')")
-				exist = cur.fetchone()[0]
-				if not exist:
-					message = f'relation "{table_name}" does not exist'
-				if request.method == "POST":
-					message = "OK"
+					cur.execute(command)
+					conn.commit()
+					messages = ["OK"]
+				except (psycopg2.DatabaseError, Exception) as error:
+					conn.rollback()
+					messages = [str(error)]
+
 	except Exception as e:
-		message = str(e)
+		messages = [str(e)]
 
 	return render(
 		request,
@@ -59,6 +50,6 @@ def init(request, table_name, use_sql, page_title):
 		{
 			"title": page_title,
 			"label": f"init {table_name} table",
-			"message": message,
+			"messages": messages,
 		},
 	)

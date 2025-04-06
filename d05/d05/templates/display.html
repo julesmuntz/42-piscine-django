@@ -2,9 +2,6 @@
 
 {% block content %}
 
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/star_wars.css' %}" />
-
 {% if messages %}
 <div class="message-container">
 	{% for message in messages %}
@@ -47,7 +44,7 @@
 						<td>{{ row.2 }}</td>
 						<td>{{ row.3|safe }}</td>
 						<td>{{ row.4 }}</td>
-						<td>{% if row.5 %}{{ row.5|linebreaksbr }}{% else %}No opening crawl available...{% endif %}
+						<td>{% if row.5 %}{{ row.5|linebreaksbr }}{% else %}{% endif %}
 						</td>
 					</tr>
 					{% endfor %}
@@ -69,7 +66,7 @@
 	});
 	setTimeout(() => {
 		skipButton.remove();
-	}, 10000);
+	}, 14000);
 </script>
 {% endif %}
 {% endblock %}
