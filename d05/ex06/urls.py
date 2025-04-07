@@ -3,7 +3,7 @@ from ex03.urls import get_base_patterns
 from .views import update
 from ex00.views import init
 
-init.sql_command = """
+init.ex06_sql = """
 	CREATE TABLE IF NOT EXISTS ex06_movies (
 		title VARCHAR(64) NOT NULL,
 		episode_nb INTEGER PRIMARY KEY,

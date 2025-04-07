@@ -133,7 +133,7 @@ STATIC_ROOT = "static"
 STATIC_URL = "static/"
 
 STATICFILES_DIRS = [
-	BASE_DIR / "ex02/static",
+	BASE_DIR / "d05/static",
 ]
 
 # Default primary key field type

@@ -49,6 +49,8 @@ clean-db: clean-migrations
 		cur.execute('DROP TABLE IF EXISTS ex05_movies CASCADE'); \
 		cur.execute('DROP TABLE IF EXISTS ex06_movies CASCADE'); \
 		cur.execute('DROP TABLE IF EXISTS ex07_movies CASCADE'); \
+		cur.execute('DROP TABLE IF EXISTS ex08_planets CASCADE'); \
+		cur.execute('DROP TABLE IF EXISTS ex08_people CASCADE'); \
 		cur.execute('DELETE FROM django_migrations WHERE app LIKE \'ex%\''); \
 		conn.commit(); \
 		conn.close();"

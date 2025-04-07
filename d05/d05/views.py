@@ -3,7 +3,16 @@ from django.shortcuts import render
 
 def hub(request):
 	exercises = []
-	ex_modules = ["ex00", "ex02", "ex03", "ex04", "ex05", "ex06", "ex07"]
+	ex_modules = [
+		"ex00",
+		"ex02",
+		"ex03",
+		"ex04",
+		"ex05",
+		"ex06",
+		"ex07",
+		"ex08",
+	]
 
 	for module_name in ex_modules:
 		module = __import__(

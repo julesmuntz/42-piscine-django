@@ -15,19 +15,31 @@ def get_db_connection():
 
 def init(request, table_name, page_title):
 	messages = []
+	label = f"init {table_name} table"
+	tables = [table_name]
+	if hasattr(init, "tables") and table_name in init.tables:
+		tables = init.tables[table_name]
+		label = f"init {' and '.join(tables)} tables"
 	try:
 		with get_db_connection() as conn:
 			cur = conn.cursor()
-			cur.execute(
-				f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')"
-			)
-			exist = cur.fetchone()[0]
+			tables_exist = {}
+			for table in tables:
+				cur.execute(
+					f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table}')"
+				)
+				tables_exist[table] = cur.fetchone()[0]
 			if request.method == "POST":
-				if exist:
-					messages = [f'Table "{table_name}" already exists']
+				existing_tables = [
+					f'Table "{table}" already exists'
+					for table, exists in tables_exist.items()
+					if exists
+				]
+				if existing_tables:
+					messages = existing_tables
 				else:
-					if table_name == "ex06_movies":
-						command = init.sql_command
+					if hasattr(init, f"{table_name}_sql"):
+						command = getattr(init, f"{table_name}_sql")
 					else:
 						command = f"""
 							CREATE TABLE {table_name} (
@@ -42,7 +54,7 @@ def init(request, table_name, page_title):
 					try:
 						cur.execute(command)
 						conn.commit()
-						messages = ["OK"]
+						messages = ["OK"] * len(tables)
 					except (psycopg2.DatabaseError, Exception) as error:
 						conn.rollback()
 						messages = [str(error)]
@@ -55,10 +67,7 @@ def init(request, table_name, page_title):
 		"d05/templates/form.html",
 		{
 			"title": page_title,
-			"label": f"init {table_name} table",
+			"label": label,
 			"messages": messages,
 		},
 	)
-
-
-init.sql_commands = {}
