@@ -18,7 +18,9 @@ def init(request, table_name, page_title):
 	try:
 		with get_db_connection() as conn:
 			cur = conn.cursor()
-			cur.execute(f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')")
+			cur.execute(
+				f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')"
+			)
 			exist = cur.fetchone()[0]
 			if request.method == "POST":
 				if exist:
