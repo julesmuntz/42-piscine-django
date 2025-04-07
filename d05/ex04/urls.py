@@ -4,17 +4,17 @@ from .views import remove
 
 
 def get_urlpatterns(table_name, page_title):
-	base_patterns = get_base_patterns(table_name, page_title)
-	return base_patterns + [
-		path(
-			"remove/",
-			remove,
-			{
-				"table_name": table_name,
-				"page_title": page_title,
-			},
-		),
-	]
+    base_patterns = get_base_patterns(table_name, page_title)
+    return base_patterns + [
+        path(
+            "remove/",
+            remove,
+            {
+                "table_name": table_name,
+                "page_title": page_title,
+            },
+        ),
+    ]
 
 
 page_title = "SQL - Data Deleting"

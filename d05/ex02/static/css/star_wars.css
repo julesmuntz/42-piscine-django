@@ -145,7 +145,8 @@ body {
 	position: fixed;
 	bottom: 0;
 	left: 50%;
-	width: 100vw;
+	transform: translateX(-50%);
+	width: 100%;
 	display: flex;
 	justify-content: center;
 	opacity: 0;
@@ -313,8 +314,9 @@ body {
 .table-wrapper {
 	position: relative;
 	min-height: 100%;
-	width: 100%;
 	bottom: -25px;
+	overflow-x: hidden;
+	margin: 0 auto;
 }
 
 .star-wars-table {
@@ -322,18 +324,65 @@ body {
 	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
 	width: 100%;
 	border-collapse: collapse;
-	font-size: min(2vw, 2vh);
+	font-size: min(1.5vw, 1.5vh);
 	text-align: left;
 	position: relative;
 	z-index: 1;
+	table-layout: fixed;
+	margin: 0 auto;
 }
 
 .star-wars-table th,
 .star-wars-table td {
-	padding: 1vh 1vw;
+	padding: 1vh 0.5vw;
 	border-bottom: 1px solid rgba(7, 153, 210, 0.3);
 	vertical-align: top;
-	white-space: nowrap;
+	white-space: normal;
+	word-wrap: break-word;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.star-wars-table th:nth-child(1),
+.star-wars-table td:nth-child(1) {
+	width: 7%;
+}
+
+.star-wars-table th:nth-child(2),
+.star-wars-table td:nth-child(2) {
+	width: 12%;
+}
+
+.star-wars-table th:nth-child(3),
+.star-wars-table td:nth-child(3) {
+	width: 10%;
+}
+
+.star-wars-table th:nth-child(4),
+.star-wars-table td:nth-child(4) {
+	width: 16%;
+}
+
+.star-wars-table th:nth-child(5),
+.star-wars-table td:nth-child(5) {
+	width: 10%;
+}
+
+.star-wars-table th:nth-child(6),
+.star-wars-table td:nth-child(6) {
+	width: 45%;
+}
+
+.star-wars-table.with-timestamps th:nth-child(6),
+.star-wars-table.with-timestamps td:nth-child(6) {
+	width: 26%;
+}
+
+.star-wars-table.with-timestamps th:nth-child(7),
+.star-wars-table.with-timestamps td:nth-child(7),
+.star-wars-table.with-timestamps th:nth-child(8),
+.star-wars-table.with-timestamps td:nth-child(8) {
+	width: 10%;
 }
 
 .star-wars-table td:last-child {
@@ -345,10 +394,6 @@ body {
 	text-transform: uppercase;
 	font-weight: normal;
 	font-size: min(2.25vw, 2.25vh);
-}
-
-.star-wars-table td:nth-child(4) {
-	white-space: nowrap;
 }
 
 .star-wars-table td:nth-child(4) br+* {

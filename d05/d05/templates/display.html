@@ -25,7 +25,7 @@
 <div class="crawl-container">
 	<div class="crawl-content">
 		<div class="table-wrapper">
-			<table class="star-wars-table">
+			<table class="star-wars-table {% if table_name == 'ex06_movies' %}with-timestamps{% endif %}">
 				<thead>
 					<tr>
 						<th>Episode</th>
@@ -34,6 +34,10 @@
 						<th>Producer</th>
 						<th>Release Date</th>
 						<th>Opening Crawl</th>
+						{% if table_name == "ex06_movies" %}
+							<th>Created</th>
+							<th>Updated</th>
+						{% endif %}
 					</tr>
 				</thead>
 				<tbody>
@@ -46,6 +50,10 @@
 						<td>{{ row.4 }}</td>
 						<td>{% if row.5 %}{{ row.5|linebreaksbr }}{% else %}{% endif %}
 						</td>
+						{% if table_name == "ex06_movies" %}
+							<td>{{ row.6 }}</td>
+							<td>{{ row.7 }}</td>
+						{% endif %}
 					</tr>
 					{% endfor %}
 				</tbody>

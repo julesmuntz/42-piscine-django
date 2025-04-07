@@ -20,26 +20,30 @@ def init(request, table_name, page_title):
 			cur = conn.cursor()
 			cur.execute(f"SELECT EXISTS(SELECT relname FROM pg_class WHERE relname='{table_name}')")
 			exist = cur.fetchone()[0]
-			if not exist:
-				messages = [f'relation "{table_name}" does not exist']
 			if request.method == "POST":
-				try:
-					command = f"""
-						CREATE TABLE {table_name} (
-							title VARCHAR(64) NOT NULL,
-							episode_nb INTEGER PRIMARY KEY,
-							opening_crawl TEXT,
-							director VARCHAR(32) NOT NULL,
-							producer VARCHAR(128) NOT NULL,
-							release_date DATE NOT NULL
-						)
-						"""
-					cur.execute(command)
-					conn.commit()
-					messages = ["OK"]
-				except (psycopg2.DatabaseError, Exception) as error:
-					conn.rollback()
-					messages = [str(error)]
+				if exist:
+					messages = [f'Table "{table_name}" already exists']
+				else:
+					if table_name == "ex06_movies":
+						command = init.sql_command
+					else:
+						command = f"""
+							CREATE TABLE {table_name} (
+								title VARCHAR(64) NOT NULL,
+								episode_nb INTEGER PRIMARY KEY,
+								opening_crawl TEXT,
+								director VARCHAR(32) NOT NULL,
+								producer VARCHAR(128) NOT NULL,
+								release_date DATE NOT NULL
+							);
+							"""
+					try:
+						cur.execute(command)
+						conn.commit()
+						messages.append("OK")
+					except (psycopg2.DatabaseError, Exception) as error:
+						conn.rollback()
+						messages.append(str(error))
 
 	except Exception as e:
 		messages = [str(e)]
@@ -53,3 +57,6 @@ def init(request, table_name, page_title):
 			"messages": messages,
 		},
 	)
+
+
+init.sql_commands = {}

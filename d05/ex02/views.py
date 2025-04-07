@@ -176,23 +176,43 @@ def display(request, table_name, page_title):
 		if page_title[:3] == "SQL":
 			with get_db_connection() as conn:
 				cur = conn.cursor()
-				cur.execute(
-					f"SELECT episode_nb, title, director, producer, release_date, opening_crawl "
-					f"FROM {table_name} ORDER BY episode_nb;"
-				)
+				if table_name == "ex06_movies":
+					cur.execute(
+						f"SELECT episode_nb, title, director, producer, release_date, opening_crawl, created, updated "
+						f"FROM {table_name} ORDER BY episode_nb;"
+					)
+				else:
+					cur.execute(
+						f"SELECT episode_nb, title, director, producer, release_date, opening_crawl "
+						f"FROM {table_name} ORDER BY episode_nb;"
+					)
 				rows = cur.fetchall()
 				if rows:
 					for row in rows:
-						roman_rows.append(
-							(
-								to_roman(row[0]),
-								row[1],
-								row[2],
-								row[3],
-								row[4],
-								row[5],
+						if table_name == "ex06_movies":
+							roman_rows.append(
+								(
+									to_roman(row[0]),
+									row[1],
+									row[2],
+									row[3],
+									row[4],
+									row[5],
+									row[6],
+									row[7],
+								)
 							)
-						)
+						else:
+							roman_rows.append(
+								(
+									to_roman(row[0]),
+									row[1],
+									row[2],
+									row[3],
+									row[4],
+									row[5],
+								)
+							)
 				else:
 					messages = ["No data available"]
 		elif page_title[:3] == "ORM":
@@ -223,5 +243,6 @@ def display(request, table_name, page_title):
 			"title": page_title,
 			"messages": messages,
 			"rows": roman_rows,
+			"table_name": table_name,
 		},
 	)
