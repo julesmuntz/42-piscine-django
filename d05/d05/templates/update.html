@@ -1,34 +1,27 @@
 {% extends 'd05/templates/form.html' %}
 
 {% block content %}
-
-<form method="post" id="updateForm">
+{% if messages and "No data available" in messages %}
+<div class="message-container">
+	<p class="message">No data available</p>
+</div>
+{% else %}
+<form method="post">
 	{% csrf_token %}
-	<select name="title" class="select-dropdown" id="titleSelect">
+	<select name="title" class="select-dropdown" onchange="this.form.method='get'; this.form.submit();">
 		{% for title in titles %}
-		<option value="{{ title }}" {% if title == selected_title %}selected{% endif %}>{{ title }}</option>
+		<option value="{{ title }}" {% if title == request.GET.title or title == request.POST.title %}selected{% endif %}>{{ title }}</option>
 		{% endfor %}
 	</select>
-	<textarea name="opening_crawl" placeholder="New opening crawl..." rows="10" cols="50" class="textarea-field" id="openingCrawl">{{ current_opening_crawl }}</textarea>
-	{{ block.super }}
+	<textarea name="opening_crawl" placeholder="New opening crawl..." rows="10" cols="50"
+		class="textarea-field">{{ opening_crawl }}</textarea>
+	<button type="submit" onclick="this.form.method='post';" class="button">{{ label }}</button>
 </form>
 
-<script>
-	document.addEventListener('DOMContentLoaded', function() {
-		const titleSelect = document.getElementById('titleSelect');
-		titleSelect.addEventListener('change', function() {
-			const form = document.createElement('form');
-			form.method = 'GET';
-			form.action = window.location.pathname;
-			const titleInput = document.createElement('input');
-			titleInput.type = 'hidden';
-			titleInput.name = 'title';
-			titleInput.value = this.value;
-			form.appendChild(titleInput);
-			document.body.appendChild(form);
-			form.submit();
-		});
-	});
-</script>
-
+<div class="message-container">
+	{% for msg in messages %}
+	<p class="message {% if msg != 'OK' %}message-error{% endif %}">{{ msg }}</p>
+	{% endfor %}
+</div>
+{% endif %}
 {% endblock %}

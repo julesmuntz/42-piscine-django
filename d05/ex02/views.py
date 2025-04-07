@@ -221,16 +221,30 @@ def display(request, table_name, page_title):
 			movies = Movies.objects.all().order_by("episode_nb")
 			if movies:
 				for movie in movies:
-					roman_rows.append(
-						(
-							to_roman(movie.episode_nb),
-							movie.title,
-							movie.director,
-							movie.producer,
-							movie.release_date,
-							movie.opening_crawl,
+					if table_name == "ex07_movies":
+						roman_rows.append(
+							(
+								to_roman(movie.episode_nb),
+								movie.title,
+								movie.director,
+								movie.producer,
+								movie.release_date,
+								movie.opening_crawl,
+								movie.created,
+								movie.updated,
+							)
 						)
-					)
+					else:
+						roman_rows.append(
+							(
+								to_roman(movie.episode_nb),
+								movie.title,
+								movie.director,
+								movie.producer,
+								movie.release_date,
+								movie.opening_crawl,
+							)
+						)
 			else:
 				messages = ["No data available"]
 	except Exception:

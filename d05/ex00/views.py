@@ -40,10 +40,10 @@ def init(request, table_name, page_title):
 					try:
 						cur.execute(command)
 						conn.commit()
-						messages.append("OK")
+						messages = ["OK"]
 					except (psycopg2.DatabaseError, Exception) as error:
 						conn.rollback()
-						messages.append(str(error))
+						messages = [str(error)]
 
 	except Exception as e:
 		messages = [str(e)]

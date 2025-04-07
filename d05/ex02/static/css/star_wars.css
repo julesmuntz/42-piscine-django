@@ -535,3 +535,32 @@ body {
 	flex-direction: column;
 	gap: 10px;
 }
+
+.textarea-field {
+	background-color: rgba(0, 0, 0, 0.7);
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	padding: 15px;
+	font-size: 1.5vw;
+	border: 2px solid #0799D2;
+	width: 80%;
+	max-width: 700px;
+	min-height: 200px;
+	display: block;
+	margin: 20px auto;
+	resize: vertical;
+	outline: none;
+	box-shadow: 0 0 10px rgba(7, 153, 210, 0.3);
+	transition: all 0.3s ease;
+	overflow-y: auto;
+}
+
+.textarea-field::-webkit-scrollbar {
+	display: none;
+}
+
+.textarea-field:focus {
+	border-color: rgba(7, 153, 210, 0.7);
+	color: rgba(255, 255, 255, 0.75);
+	background-color: #0799d248;
+}
