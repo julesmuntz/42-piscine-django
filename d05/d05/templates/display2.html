@@ -2,8 +2,7 @@
 <div class="message-container">
 	{% for message in messages %}
 	<p
-		class="message {% if message == 'No data available' %}message{% else %}message-error{% endif %}"
-	>
+		class="message {% if message == 'No data available' %}message{% else %}message-error{% endif %}">
 		{{ message }}
 	</p>
 	{% endfor %}

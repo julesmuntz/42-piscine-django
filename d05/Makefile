@@ -1,4 +1,4 @@
-.PHONY: all run clean-cache clean-venv clean-static clean-migrations clean-db clean-local clean
+.PHONY: all run clean-cache clean-venv clean-static clean-migrations clean-db clean-local clean populate-ex09 populate
 
 all: run
 
@@ -21,6 +21,11 @@ run:
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	fi
+
+populate-ex09:
+	python3 manage.py loaddata d05/static/data/ex09_initial_data.json
+
+populate: populate-ex09
 
 clean-cache:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -51,6 +56,8 @@ clean-db: clean-migrations
 		cur.execute('DROP TABLE IF EXISTS ex07_movies CASCADE'); \
 		cur.execute('DROP TABLE IF EXISTS ex08_planets CASCADE'); \
 		cur.execute('DROP TABLE IF EXISTS ex08_people CASCADE'); \
+		cur.execute('DROP TABLE IF EXISTS ex09_planets CASCADE'); \
+		cur.execute('DROP TABLE IF EXISTS ex09_people CASCADE'); \
 		cur.execute('DELETE FROM django_migrations WHERE app LIKE \'ex%\''); \
 		conn.commit(); \
 		conn.close();"

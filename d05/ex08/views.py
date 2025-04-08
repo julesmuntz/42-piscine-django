@@ -125,20 +125,15 @@ def display(request, table_name, page_title):
 				ORDER BY p.name ASC
 			"""
 			)
-
 			query_results = cur.fetchall()
-
 			if query_results:
 				rows = query_results
 			else:
 				messages = ["No data available"]
+		conn.close()
 
 	except Exception:
 		messages = ["No data available"]
-
-	finally:
-		if "conn" in locals():
-			conn.close()
 
 	return render(
 		request,
