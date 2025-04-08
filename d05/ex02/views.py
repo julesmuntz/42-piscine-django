@@ -11,7 +11,7 @@ def populate(request, table_name, page_title):
 
 	if request.method == "POST":
 		json_path = os.path.join(
-			os.path.dirname(__file__), "static", "data", "opening_crawl.json"
+			os.path.dirname(__file__), "..", "d05", "static", "data", "opening_crawl.json"
 		)
 		try:
 			with open(json_path, "r") as file:
@@ -174,28 +174,33 @@ def display(request, table_name, page_title):
 				rows = cur.fetchall()
 				if rows:
 					for row in rows:
+						# Convert row to list to modify the opening_crawl
+						row_list = list(row)
+						# Replace \n with space in opening_crawl (index 5)
+						row_list[5] = row_list[5].replace('\n', ' ') if row_list[5] else ''
+						
 						if table_name == "ex06_movies":
 							roman_rows.append(
 								(
-									to_roman(row[0]),
-									row[1],
-									row[2],
-									row[3],
-									row[4],
-									row[5],
-									row[6],
-									row[7],
+									to_roman(row_list[0]),
+									row_list[1],
+									row_list[2],
+									row_list[3],
+									row_list[4],
+									row_list[5],  # Modified opening_crawl
+									row_list[6],
+									row_list[7],
 								)
 							)
 						else:
 							roman_rows.append(
 								(
-									to_roman(row[0]),
-									row[1],
-									row[2],
-									row[3],
-									row[4],
-									row[5],
+									to_roman(row_list[0]),
+									row_list[1],
+									row_list[2],
+									row_list[3],
+									row_list[4],
+									row_list[5],  # Modified opening_crawl
 								)
 							)
 				else:
@@ -206,6 +211,9 @@ def display(request, table_name, page_title):
 			movies = Movies.objects.all().order_by("episode_nb")
 			if movies:
 				for movie in movies:
+					# Replace \n with space in opening_crawl
+					opening_crawl = movie.opening_crawl.replace('\n', ' ') if movie.opening_crawl else ''
+					
 					if table_name == "ex07_movies":
 						roman_rows.append(
 							(
@@ -214,7 +222,7 @@ def display(request, table_name, page_title):
 								movie.director,
 								movie.producer,
 								movie.release_date,
-								movie.opening_crawl,
+								opening_crawl,  # Modified opening_crawl
 								movie.created,
 								movie.updated,
 							)
@@ -227,7 +235,7 @@ def display(request, table_name, page_title):
 								movie.director,
 								movie.producer,
 								movie.release_date,
-								movie.opening_crawl,
+								opening_crawl,  # Modified opening_crawl
 							)
 						)
 			else:

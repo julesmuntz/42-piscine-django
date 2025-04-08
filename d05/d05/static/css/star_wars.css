@@ -18,8 +18,6 @@
 
 body {
 	background-color: black;
-	overflow-y: auto;
-	height: 100vh;
 	margin: 0;
 	perspective: 800px;
 	display: flex;
@@ -30,6 +28,7 @@ body {
 	background-repeat: no-repeat;
 	background-attachment: fixed;
 	overflow: hidden;
+	height: 100vh;
 }
 
 .intro-text {
@@ -313,10 +312,10 @@ body {
 
 .table-wrapper {
 	position: relative;
-	min-height: 100%;
-	bottom: -25px;
-	overflow-x: hidden;
+	width: 100%;
+	max-width: 1800px;
 	margin: 0 auto;
+	padding: 20px;
 }
 
 .star-wars-table {
@@ -329,23 +328,55 @@ body {
 	position: relative;
 	z-index: 1;
 	table-layout: fixed;
-	margin: 0 auto;
 }
 
 .star-wars-table th,
 .star-wars-table td {
-	padding: 1vh 0.5vw;
-	border-bottom: 1px solid rgba(7, 153, 210, 0.3);
-	vertical-align: top;
+	padding: 20px;
+	border: 1px solid rgba(7, 153, 210, 0.3);
+	vertical-align: middle;
 	white-space: normal;
 	word-wrap: break-word;
+	overflow-wrap: break-word;
+	line-height: 1.4;
+}
+
+.star-wars-table th {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	text-transform: uppercase;
+	border-bottom: 2px solid #0799D2;
+	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	padding: 15px;
+	font-size: min(1.5vw, 1.5vh);
+}
+
+.star-wars-table thead tr {
+	white-space: nowrap;
+}
+
+.star-wars-table td:nth-child(2) {
+	font-family: 'Univers Light Ultra Condensed', 'Arial Narrow', sans-serif;
+	text-transform: uppercase;
+	font-weight: normal;
+	font-size: min(2vw, 2vh);
+}
+
+.star-wars-table.display2 td:nth-child(2) {
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	text-transform: none;
+	font-size: min(1.5vw, 1.5vh);
+}
+
+.star-wars-table.display2 td:nth-child(3) {
+	text-transform: capitalize;
 }
 
 .star-wars-table th:nth-child(1),
 .star-wars-table td:nth-child(1) {
-	width: 7%;
+	width: 5%;
 }
 
 .star-wars-table th:nth-child(2),
@@ -354,63 +385,19 @@ body {
 }
 
 .star-wars-table th:nth-child(3),
-.star-wars-table td:nth-child(3) {
-	width: 10%;
-}
-
+.star-wars-table td:nth-child(3),
 .star-wars-table th:nth-child(4),
 .star-wars-table td:nth-child(4) {
-	width: 16%;
+	width: 8%;
 }
 
 .star-wars-table th:nth-child(5),
-.star-wars-table td:nth-child(5) {
-	width: 10%;
-}
-
-.star-wars-table th:nth-child(6),
-.star-wars-table td:nth-child(6) {
-	width: 45%;
-}
-
-.star-wars-table.with-timestamps th:nth-child(6),
-.star-wars-table.with-timestamps td:nth-child(6) {
-	width: 26%;
-}
-
-.star-wars-table.with-timestamps th:nth-child(7),
-.star-wars-table.with-timestamps td:nth-child(7),
-.star-wars-table.with-timestamps th:nth-child(8),
-.star-wars-table.with-timestamps td:nth-child(8) {
-	width: 10%;
-}
-
-.star-wars-table td:last-child {
-	white-space: normal;
-}
-
-.star-wars-table td:nth-child(2) {
-	font-family: 'Univers Light Ultra Condensed', 'Arial Narrow', sans-serif;
-	text-transform: uppercase;
-	font-weight: normal;
-	font-size: min(2.25vw, 2.25vh);
-}
-
-.star-wars-table.display2 td:nth-child(2) {
-	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
-	text-transform: none;
-	font-size: min(2vw, 2vh);
-}
-
-.star-wars-table td:nth-child(4) br+* {
-	margin-top: 0.5em;
-}
-
-.star-wars-table th {
-	color: #0799D2;
-	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
-	text-transform: uppercase;
-	border-bottom: 2px solid #0799D2;
+.star-wars-table td:nth-child(5),
+.star-wars-table th:nth-child(7),
+.star-wars-table td:nth-child(7),
+.star-wars-table th:nth-child(8),
+.star-wars-table td:nth-child(8) {
+	width: 7%;
 }
 
 .select-dropdown {
@@ -512,7 +499,6 @@ body {
 	flex-direction: column;
 	background-color: rgba(0, 0, 0, 0.7);
 	border: 1px solid rgba(7, 153, 210, 0.3);
-	border-radius: 5px;
 	padding: 20px;
 }
 
@@ -569,4 +555,353 @@ body {
 	border-color: rgba(7, 153, 210, 0.7);
 	color: rgba(255, 255, 255, 0.75);
 	background-color: #0799d248;
+}
+
+.search-container {
+	padding-bottom: 50px;
+	max-width: none;
+	width: 100%;
+	margin: 0;
+	background-color: transparent;
+	border: none;
+	box-shadow: none;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.search-container h2 {
+	color: #FFE81F;
+	font-family: 'Univers Light Ultra Condensed', 'Arial Narrow', sans-serif;
+	text-align: center;
+	font-size: 6vh;
+	text-transform: uppercase;
+	font-weight: normal;
+	margin-top: 20vh;
+}
+
+.search-form {
+	width: 100%;
+	max-width: 1200px;
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 40px;
+	padding: 40px;
+	background-color: rgba(0, 0, 0, 0.7);
+	border: 1px solid rgba(7, 153, 210, 0.3);
+}
+
+.form-group:not(.timeline-group) {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	min-width: 0;
+}
+
+.search-form input[type="number"] {
+	-webkit-appearance: none;
+	-moz-appearance: textfield;
+	appearance: none;
+	height: 55px;
+	background-color: black;
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	padding: 15px 20px;
+	font-size: 2vh;
+	border: 2px solid #0799D2;
+	width: 100%;
+	outline: none;
+	transition: all 0.3s ease;
+	box-sizing: border-box;
+	position: relative;
+}
+
+.search-form input[type="number"]::-webkit-inner-spin-button,
+.search-form input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.search-form label {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	font-size: 1.5vh;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	margin: 0;
+	white-space: nowrap;
+}
+
+.search-form button[type="submit"] {
+	grid-column: 1 / -1;
+	background-color: transparent;
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	padding: 20px;
+	font-size: 2.5vh;
+	cursor: pointer;
+	border: 2px solid #0799D2;
+	width: 50%;
+	margin: 20px auto 0;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	transition: all 0.3s ease;
+}
+
+.search-form button[type="submit"]:hover {
+	background-color: #0799d248;
+	color: rgba(255, 255, 255, 0.75);
+}
+
+.search-results {
+	margin-top: 30px;
+}
+
+.search-results h3 {
+	color: #0799D2;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	font-size: 2vh;
+	margin-bottom: 20px;
+	text-transform: uppercase;
+}
+
+.search-results ul {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+.search-results li {
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	font-size: 1.5vh;
+	padding: 15px;
+	border-bottom: 1px solid rgba(7, 153, 210, 0.3);
+	line-height: 1.4;
+}
+
+.search-results li:last-child {
+	border-bottom: none;
+}
+
+.no-results {
+	color: #FF3B30;
+	font-family: 'Trade Gothic', 'Arial Narrow', sans-serif;
+	text-align: center;
+	font-size: 1.8vh;
+	margin: 30px 0;
+}
+
+.search-form input[type="date"]::-webkit-calendar-picker-indicator {
+	filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(190deg) brightness(118%) contrast(119%);
+	cursor: pointer;
+}
+
+.search-form input:focus,
+.search-form select:focus {
+	border-color: #1FB2BC;
+}
+
+.search-container::-webkit-scrollbar {
+	width: 8px;
+}
+
+.search-container::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.search-container::-webkit-scrollbar-thumb {
+	background: rgba(7, 153, 210, 0.5);
+}
+
+.search-container::-webkit-scrollbar-thumb:hover {
+	background: rgba(7, 153, 210, 0.7);
+}
+
+.timeline-group {
+	grid-column: 1 / -1;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.timeline-label {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+}
+
+.date-display {
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	font-size: 1.8vh;
+}
+
+.timeline-container {
+	position: relative;
+	width: 100%;
+	height: 40px;
+	padding: 0 10px;
+}
+
+.timeline-track {
+	position: absolute;
+	width: calc(100% - 20px);
+	height: 4px;
+	background: rgba(7, 153, 210, 0.1);
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+.timeline-slider {
+	position: absolute;
+	-webkit-appearance: none;
+	appearance: none;
+	width: calc(100% - 20px);
+	height: 100%;
+	background: transparent;
+	outline: none;
+	margin: 0;
+	padding: 0;
+	pointer-events: none;
+}
+
+.timeline-slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 20px;
+	height: 20px;
+	background: #0799D2;
+	border: 2px solid #0799D2;
+	border-radius: 50%;
+	cursor: pointer;
+	pointer-events: auto;
+	position: relative;
+	box-shadow: 0 0 10px rgba(255, 232, 31, 0.3);
+	transition: all 0.3s ease;
+}
+
+.timeline-slider::-webkit-slider-thumb:hover {
+	transform: scale(1.2);
+	box-shadow: 0 0 15px rgba(7, 153, 210, 0.5);
+}
+
+.timeline-slider::-moz-range-thumb {
+	width: 20px;
+	height: 20px;
+	background: #0799D2;
+	border: 2px solid #0799D2;
+	border-radius: 50%;
+	cursor: pointer;
+	pointer-events: auto;
+	position: relative;
+	box-shadow: 0 0 10px rgba(7, 153, 210, 0.3);
+	transition: all 0.3s ease;
+}
+
+.timeline-slider::-moz-range-thumb:hover {
+	transform: scale(1.2);
+	box-shadow: 0 0 15px rgba(7, 153, 210, 0.5);
+}
+
+.min-slider {
+	z-index: 2;
+}
+
+.max-slider {
+	z-index: 1;
+}
+
+.min-slider:active {
+	z-index: 3;
+}
+
+.sw-logo-search {
+	position: absolute;
+	top: 0;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 100%;
+	max-width: 800px;
+	height: auto;
+	max-height: 12.5vh;
+	object-fit: contain;
+	object-position: top;
+	margin-top: 10vh;
+	filter: drop-shadow(0 0 15px rgba(255, 232, 31, 0.4));
+}
+
+.number-control {
+	position: relative;
+	width: 100%;
+}
+
+.number-overlay {
+	position: absolute;
+	right: 15px;
+	top: 50%;
+	transform: translateY(-50%);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	pointer-events: none;
+}
+
+.number-arrow {
+	width: 0;
+	height: 0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	transition: opacity 0.2s;
+}
+
+.number-arrow.up {
+	border-bottom: 6px solid #0799D2;
+}
+
+.number-arrow.down {
+	border-top: 6px solid #0799D2;
+}
+
+.number-control:hover .number-arrow {
+	opacity: 1;
+}
+
+.search-form select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	height: 55px;
+	background-color: black;
+	color: #FFE81F;
+	font-family: 'News Gothic Bold', 'Arial Narrow', sans-serif;
+	padding: 15px 20px;
+	font-size: 2vh;
+	border: 2px solid #0799D2;
+	width: 100%;
+	outline: none;
+	transition: all 0.3s ease;
+	box-sizing: border-box;
+	cursor: pointer;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230799D2' d='M6 9L0 0h12'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 15px center;
+	padding-right: 40px;
+}
+
+.search-form select:hover {
+	border-color: #1FB2BC;
+}
+
+.search-form select:focus {
+	border-color: #1FB2BC;
+	box-shadow: 0 0 10px rgba(7, 153, 210, 0.3);
+}
+
+.search-form select option {
+	background-color: black;
+	color: #FFE81F;
+	padding: 10px;
 }

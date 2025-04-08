@@ -31,10 +31,9 @@ init.ex08_sql = """
 init.tables = {"ex08_planets and ex08_people": ["ex08_planets", "ex08_people"]}
 
 
-def get_urlpatterns(table_name, page_title):
+def get_urlpatterns(page_title):
 	patterns = []
-	if page_title[:3] == "SQL":
-		patterns.extend(get_base_patterns(table_name, page_title))
+	patterns.extend(get_base_patterns("ex08_planets and ex08_people", page_title))
 
 	patterns.extend(
 		[
@@ -42,7 +41,6 @@ def get_urlpatterns(table_name, page_title):
 				"populate/",
 				populate,
 				{
-					"table_name": table_name,
 					"page_title": page_title,
 				},
 			),
@@ -50,7 +48,6 @@ def get_urlpatterns(table_name, page_title):
 				"display/",
 				display,
 				{
-					"table_name": table_name,
 					"page_title": page_title,
 				},
 			),
@@ -60,6 +57,5 @@ def get_urlpatterns(table_name, page_title):
 
 
 page_title = "SQL - Foreign Key"
-table_name = "ex08_planets and ex08_people"
 
-urlpatterns = get_urlpatterns(table_name, page_title)
+urlpatterns = get_urlpatterns(page_title)

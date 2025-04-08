@@ -1,12 +1,12 @@
 from django.urls import path
-from .views import display
+from .views import search
 
-page_title = "ORM - Foreign Key"
+page_title = "ORM - Many to Many"
 
 urlpatterns = [
 	path(
-		"display/",
-		display,
+		"",
+		search,
 		{
 			"page_title": page_title,
 		},

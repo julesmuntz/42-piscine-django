@@ -5,7 +5,7 @@ import csv
 import io
 
 
-def populate(request, table_name, page_title):
+def populate(request, page_title):
 	messages = []
 
 	if request.method == "POST":
@@ -104,12 +104,12 @@ def populate(request, table_name, page_title):
 		{
 			"title": page_title,
 			"messages": messages,
-			"label": f"Insert data into {table_name}",
+			"label": "Insert data into ex08_planets and ex08_people",
 		},
 	)
 
 
-def display(request, table_name, page_title):
+def display(request, page_title):
 	messages = []
 	rows = []
 
@@ -142,6 +142,6 @@ def display(request, table_name, page_title):
 			"title": page_title,
 			"messages": messages,
 			"rows": rows,
-			"table_name": table_name,
+			"table_name": "ex08_planets and ex08_people",
 		},
 	)

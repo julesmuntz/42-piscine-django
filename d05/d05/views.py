@@ -13,6 +13,7 @@ def hub(request):
 		"ex07",
 		"ex08",
 		"ex09",
+		"ex10",
 	]
 
 	for module_name in ex_modules:

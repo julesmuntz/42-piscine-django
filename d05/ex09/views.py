@@ -3,7 +3,7 @@ from django.db.models import Q
 from ex09.models import People
 
 
-def display(request, table_name, page_title):
+def display(request, page_title):
 	messages = []
 	rows = []
 
@@ -45,6 +45,6 @@ def display(request, table_name, page_title):
 			"title": page_title,
 			"messages": messages,
 			"rows": rows,
-			"table_name": table_name,
+			"table_name": "ex09_planets and ex09_people",
 		},
 	)
