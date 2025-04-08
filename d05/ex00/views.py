@@ -38,8 +38,8 @@ def init(request, table_name, page_title):
 				if existing_tables:
 					messages = existing_tables
 				else:
-					if hasattr(init, f"{table_name}_sql"):
-						command = getattr(init, f"{table_name}_sql")
+					if hasattr(init, f"{table_name[:4]}_sql"):
+						command = getattr(init, f"{table_name[:4]}_sql")
 					else:
 						command = f"""
 							CREATE TABLE {table_name} (

@@ -10,139 +10,125 @@ def populate(request, table_name, page_title):
 	messages = []
 
 	if request.method == "POST":
-		if hasattr(populate, f"{table_name}_data"):
-			data_function = getattr(populate, f"{table_name}_data")
-			data = data_function()
-		else:
-			json_path = os.path.join(
-				os.path.dirname(__file__), "static", "data", "opening_crawl.json"
-			)
-			try:
-				with open(json_path, "r") as file:
-					opening_crawls = json.load(file)
-			except Exception as e:
-				messages.append(f"Error loading opening crawls: {str(e)}")
-				opening_crawls = {}
-			data = [
-				(
-					1,
-					"The Phantom Menace",
-					"George Lucas",
-					"Rick McCallum",
-					"1999-05-19",
-					opening_crawls.get("The Phantom Menace", ""),
-				),
-				(
-					2,
-					"Attack of the Clones",
-					"George Lucas",
-					"Rick McCallum",
-					"2002-05-16",
-					opening_crawls.get("Attack of the Clones", ""),
-				),
-				(
-					3,
-					"Revenge of the Sith",
-					"George Lucas",
-					"Rick McCallum",
-					"2005-05-19",
-					opening_crawls.get("Revenge of the Sith", ""),
-				),
-				(
-					4,
-					"A New Hope",
-					"George Lucas",
-					"Gary Kurtz, Rick McCallum",
-					"1977-05-25",
-					opening_crawls.get("A New Hope", ""),
-				),
-				(
-					5,
-					"The Empire Strikes Back",
-					"Irvin Kershner",
-					"Gary Kurtz, Rick McCallum",
-					"1980-05-17",
-					opening_crawls.get("The Empire Strikes Back", ""),
-				),
-				(
-					6,
-					"Return of the Jedi",
-					"Richard Marquand",
-					"Howard G. Kazanjian, George Lucas, Rick McCallum",
-					"1983-05-25",
-					opening_crawls.get("Return of the Jedi", ""),
-				),
-				(
-					7,
-					"The Force Awakens",
-					"J.J. Abrams",
-					"Kathleen Kennedy, J.J. Abrams, Bryan Burk",
-					"2015-12-11",
-					opening_crawls.get("The Force Awakens", ""),
-				),
-			]
+		json_path = os.path.join(
+			os.path.dirname(__file__), "static", "data", "opening_crawl.json"
+		)
+		try:
+			with open(json_path, "r") as file:
+				opening_crawls = json.load(file)
+		except Exception as e:
+			messages.append(f"Error loading opening crawls: {str(e)}")
+			opening_crawls = {}
+		data = [
+			(
+				1,
+				"The Phantom Menace",
+				"George Lucas",
+				"Rick McCallum",
+				"1999-05-19",
+				opening_crawls.get("The Phantom Menace", ""),
+			),
+			(
+				2,
+				"Attack of the Clones",
+				"George Lucas",
+				"Rick McCallum",
+				"2002-05-16",
+				opening_crawls.get("Attack of the Clones", ""),
+			),
+			(
+				3,
+				"Revenge of the Sith",
+				"George Lucas",
+				"Rick McCallum",
+				"2005-05-19",
+				opening_crawls.get("Revenge of the Sith", ""),
+			),
+			(
+				4,
+				"A New Hope",
+				"George Lucas",
+				"Gary Kurtz, Rick McCallum",
+				"1977-05-25",
+				opening_crawls.get("A New Hope", ""),
+			),
+			(
+				5,
+				"The Empire Strikes Back",
+				"Irvin Kershner",
+				"Gary Kurtz, Rick McCallum",
+				"1980-05-17",
+				opening_crawls.get("The Empire Strikes Back", ""),
+			),
+			(
+				6,
+				"Return of the Jedi",
+				"Richard Marquand",
+				"Howard G. Kazanjian, George Lucas, Rick McCallum",
+				"1983-05-25",
+				opening_crawls.get("Return of the Jedi", ""),
+			),
+			(
+				7,
+				"The Force Awakens",
+				"J.J. Abrams",
+				"Kathleen Kennedy, J.J. Abrams, Bryan Burk",
+				"2015-12-11",
+				opening_crawls.get("The Force Awakens", ""),
+			),
+		]
 
 		if page_title[:3] == "SQL":
-			if hasattr(populate, f"{table_name}_sql_insert"):
-				insert_function = getattr(populate, f"{table_name}_sql_insert")
-				messages = insert_function(data)
-			else:
+			try:
+				conn = get_db_connection()
+				with conn.cursor() as cur:
+					for movie in data:
+						try:
+							cur.execute(
+								f"""
+								INSERT INTO {table_name}
+								(episode_nb, title, director, producer, release_date, opening_crawl)
+								VALUES
+								(%s, %s, %s, %s, %s, %s)
+								""",
+								(
+									movie[0],
+									movie[1],
+									movie[2],
+									movie[3],
+									datetime.strptime(movie[4], "%Y-%m-%d"),
+									movie[5],
+								),
+							)
+							conn.commit()
+							messages.append("OK")
+						except Exception as e:
+							error_parts = str(e).split("DETAIL:")
+							if len(error_parts) > 1:
+								messages.extend([part.strip() for part in error_parts])
+							else:
+								messages.append(str(e))
+							conn.rollback()
+			except Exception as e:
+				messages.append(str(e))
+			finally:
+				conn.close()
+		elif page_title[:3] == "ORM":
+			module = import_module(f"ex{int(table_name[2:4]):02d}.models")
+			Movies = module.Movies
+			for movie in data:
 				try:
-					conn = get_db_connection()
-					with conn.cursor() as cur:
-						for movie in data:
-							try:
-								cur.execute(
-									f"""
-									INSERT INTO {table_name}
-									(episode_nb, title, director, producer, release_date, opening_crawl)
-									VALUES
-									(%s, %s, %s, %s, %s, %s)
-									""",
-									(
-										movie[0],
-										movie[1],
-										movie[2],
-										movie[3],
-										datetime.strptime(movie[4], "%Y-%m-%d"),
-										movie[5],
-									),
-								)
-								conn.commit()
-								messages.append("OK")
-							except Exception as e:
-								error_parts = str(e).split("DETAIL:")
-								if len(error_parts) > 1:
-									messages.extend(
-										[part.strip() for part in error_parts]
-									)
-								else:
-									messages.append(str(e))
-								conn.rollback()
+					Movies.objects.create(
+						episode_nb=movie[0],
+						title=movie[1],
+						director=movie[2],
+						producer=movie[3],
+						release_date=datetime.strptime(movie[4], "%Y-%m-%d"),
+						opening_crawl=movie[5],
+					)
+					messages.append("OK")
 				except Exception as e:
 					messages.append(str(e))
-				finally:
-					conn.close()
-		elif page_title[:3] == "ORM":
-			if hasattr(populate, f"{table_name}_orm_insert"):
-				insert_function = getattr(populate, f"{table_name}_orm_insert")
-				messages = insert_function(data)
-			else:
-				module = import_module(f"ex{int(table_name[2:4]):02d}.models")
-				Movies = module.Movies
-				for movie in data:
-					try:
-						Movies.objects.create(
-							episode_nb=movie[0],
-							title=movie[1],
-							director=movie[2],
-							producer=movie[3],
-							release_date=datetime.strptime(movie[4], "%Y-%m-%d"),
-							opening_crawl=movie[5],
-						)
-						messages.append("OK")
-					except Exception as e:
-						messages.append(str(e))
 
 	return render(
 		request,

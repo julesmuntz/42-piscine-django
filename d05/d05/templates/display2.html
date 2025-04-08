@@ -1,0 +1,34 @@
+{% extends 'd05/templates/base.html' %} {% block content %} {% if messages %}
+<div class="message-container">
+	{% for message in messages %}
+	<p
+		class="message {% if message == 'No data available' %}message{% else %}message-error{% endif %}"
+	>
+		{{ message }}
+	</p>
+	{% endfor %}
+</div>
+{% else %}
+
+<div class="table-wrapper">
+	<table class="star-wars-table display2">
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Homeworld</th>
+				<th>Climate</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for row in rows %}
+			<tr>
+				<td>{{ row.0 }}</td>
+				<td>{{ row.1 }}</td>
+				<td>{{ row.2 }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+{% endif %} {% endblock %}
