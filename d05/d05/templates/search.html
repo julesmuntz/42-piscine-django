@@ -79,7 +79,7 @@
 							   id="min_diameter" 
 							   name="min_diameter" 
 							   value="11000" 
-							   step="100"
+							   step="1"
 							   required>
 						<div class="number-overlay">
 							<div class="number-arrow up"></div>
@@ -191,7 +191,7 @@
 			diameterInput.addEventListener('wheel', function(e) {
 				e.preventDefault();
 				
-				const step = 100;
+				const step = 1;
 				const value = parseInt(this.value);
 				
 				if (e.deltaY < 0) {
@@ -217,7 +217,7 @@
 			diameterInput.addEventListener('keydown', function(e) {
 				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
 					e.preventDefault();
-					const step = 100;
+					const step = 1;
 					const value = parseInt(this.value);
 					
 					if (e.key === 'ArrowUp') {
