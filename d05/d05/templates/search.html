@@ -1,11 +1,11 @@
 {% extends "d05/templates/base.html" %}
 
 {% block content %}
-	{% if empty_tables is True %}
-		<p class="message message-error">No data available, please use the following command line before use:</p>
-		<code class="message">
-			python3 manage.py loaddata d05/static/data/ex10_initial_data.json
-		</code>
+
+	{% if no_data %}
+		<div class="message-container">
+			<p class="message">No data available</p>
+		</div>
 
 	{% elif results %}
 		<div class="table-wrapper">
@@ -34,7 +34,9 @@
 		</div>
 
 	{% elif no_results %}
-		<p class="message message-error">Nothing corresponding to your research</p>
+		<div class="message-container">
+			<p class="message">Nothing corresponding to your research</p>
+		</div>
 
 	{% else %}
 		<img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/Star_Wars_Yellow_Logo.svg" 
