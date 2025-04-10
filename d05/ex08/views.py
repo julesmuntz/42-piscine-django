@@ -9,94 +9,77 @@ def populate(request, page_title):
 	messages = []
 
 	if request.method == "POST":
-		planets_csv_path = os.path.join(
-			os.path.dirname(__file__), "..", "d05", "static", "data", "planets.csv"
-		)
-		people_csv_path = os.path.join(
-			os.path.dirname(__file__), "..", "d05", "static", "data", "people.csv"
-		)
+		data_config = [
+			{
+				"name": "planets",
+				"csv_path": os.path.join(os.path.dirname(__file__), "..", "d05", "static", "data", "planets.csv"),
+				"table_name": "ex08_planets",
+				"columns": (
+					"name",
+					"climate",
+					"diameter",
+					"orbital_period",
+					"population",
+					"rotation_period",
+					"surface_water",
+					"terrain",
+				),
+			},
+			{
+				"name": "people",
+				"csv_path": os.path.join(os.path.dirname(__file__), "..", "d05", "static", "data", "people.csv"),
+				"table_name": "ex08_people",
+				"columns": (
+					"name",
+					"birth_year",
+					"gender",
+					"eye_color",
+					"hair_color",
+					"height",
+					"mass",
+					"homeworld",
+				),
+			},
+		]
 
 		conn = get_db_connection()
-		try:
-			with conn.cursor() as cur:
-				cur.execute("SELECT name FROM ex08_planets")
-				existing_planets = {row[0] for row in cur.fetchall()}
 
-			planets_data = io.StringIO()
-
-			with open(planets_csv_path, "r") as file:
-				reader = csv.reader(file, delimiter="\t")
-				for row in reader:
-					if row[0] not in existing_planets:
-						planets_data.write("\t".join(row) + "\n")
-						messages.append("OK")
-					else:
-						messages.append(f"ERROR: Planet '{row[0]}' already exists")
-
-			if planets_data.getvalue():
-				planets_data.seek(0)
+		for config in data_config:
+			try:
 				with conn.cursor() as cur:
-					cur.copy_from(
-						planets_data,
-						"ex08_planets",
-						columns=(
-							"name",
-							"climate",
-							"diameter",
-							"orbital_period",
-							"population",
-							"rotation_period",
-							"surface_water",
-							"terrain",
-						),
-						null="NULL",
-					)
-				conn.commit()
+					cur.execute(f"SELECT name FROM {config['table_name']}")
+					existing_entries = {row[0] for row in cur.fetchall()}
 
-			with conn.cursor() as cur:
-				cur.execute("SELECT name FROM ex08_people")
-				existing_people = {row[0] for row in cur.fetchall()}
+				data_buffer = io.StringIO()
 
-			people_data = io.StringIO()
+				with open(config["csv_path"], "r") as file:
+					reader = csv.reader(file, delimiter="\t")
+					for row in reader:
+						if row[0] not in existing_entries:
+							data_buffer.write("\t".join(row) + "\n")
+							messages.append("OK")
+						else:
+							messages.append(f"ERROR: {config['name'].capitalize()[:-1]} '{row[0]}' already exists")
 
-			with open(people_csv_path, "r") as file:
-				reader = csv.reader(file, delimiter="\t")
-				for row in reader:
-					if row[0] not in existing_people:
-						people_data.write("\t".join(row) + "\n")
-						messages.append("OK")
-					else:
-						messages.append(f"ERROR: Person '{row[0]}' already exists")
+				if data_buffer.getvalue():
+					data_buffer.seek(0)
+					with conn.cursor() as cur:
+						cur.copy_from(
+							data_buffer,
+							config["table_name"],
+							columns=config["columns"],
+							null="NULL",
+						)
+					conn.commit()
+			except Exception as e:
+				conn.rollback()
+				error_parts = str(e).split("DETAIL:")
+				if len(error_parts) > 1:
+					messages.extend([part.strip() for part in error_parts])
+				else:
+					messages.append(str(e))
 
-			if people_data.getvalue():
-				people_data.seek(0)
-				with conn.cursor() as cur:
-					cur.copy_from(
-						people_data,
-						"ex08_people",
-						columns=(
-							"name",
-							"birth_year",
-							"gender",
-							"eye_color",
-							"hair_color",
-							"height",
-							"mass",
-							"homeworld",
-						),
-						null="NULL",
-					)
-				conn.commit()
-
-		except Exception as e:
-			conn.rollback()
-			error_parts = str(e).split("DETAIL:")
-			if len(error_parts) > 1:
-				messages.extend([part.strip() for part in error_parts])
-			else:
-				messages.append(str(e))
-		finally:
-			conn.close()
+		conn.close()
 
 	return render(
 		request,
