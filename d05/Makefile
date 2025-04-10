@@ -1,4 +1,5 @@
-.PHONY: all run clean-cache clean-venv clean-static clean-migrations clean-db clean-local clean populate-ex09 populate-ex10 populate
+.PHONY: all run clean-cache clean-venv clean-static clean-migrations clean-db clean-local clean populate-ex09 populate-ex10 populate \
+		migrate-ex01 migrate-ex03 migrate-ex05 migrate-ex07 migrate-ex09 migrate-ex10
 
 all: run
 
@@ -8,7 +9,6 @@ run:
 		python3 -m pip install --upgrade pip && \
 		python3 -m pip install --force-reinstall -r requirements.txt && \
 		python3 manage.py makemigrations && \
-		python3 manage.py migrate && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	else \
@@ -17,10 +17,29 @@ run:
 		python3 -m pip install --upgrade pip && \
 		python3 -m pip install -r requirements.txt && \
 		python3 manage.py makemigrations && \
-		python3 manage.py migrate && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	fi
+
+migrate-ex01:
+	. venv/bin/activate && python3 manage.py migrate ex01
+
+migrate-ex03:
+	. venv/bin/activate && python3 manage.py migrate ex03
+
+migrate-ex05:
+	. venv/bin/activate && python3 manage.py migrate ex05
+
+migrate-ex07:
+	. venv/bin/activate && python3 manage.py migrate ex07
+
+migrate-ex09:
+	. venv/bin/activate && python3 manage.py migrate ex09
+
+migrate-ex10:
+	. venv/bin/activate && python3 manage.py migrate ex10
+
+migrate: migrate-ex01 migrate-ex03 migrate-ex05 migrate-ex07 migrate-ex09 migrate-ex10
 
 populate-ex09:
 	python3 manage.py loaddata d05/static/data/ex09_initial_data.json
