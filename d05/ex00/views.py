@@ -43,7 +43,7 @@ def init(request, table_name, page_title):
 					else:
 						command = f"""
 							CREATE TABLE {table_name} (
-								title VARCHAR(64) NOT NULL,
+								title VARCHAR(64) NOT NULL UNIQUE,
 								episode_nb INTEGER PRIMARY KEY,
 								opening_crawl TEXT,
 								director VARCHAR(32) NOT NULL,
