@@ -1,0 +1,8 @@
+{% extends 'd06/templates/base.html' %}
+
+{% block header %}
+	<nav class="intro-text-static">{{ message }}</nav>
+	<div class="info-message">
+		Session expires in {{ session_remaining_seconds }} seconds
+	</div>
+{% endblock %}

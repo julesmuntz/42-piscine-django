@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
 	"django.middleware.security.SecurityMiddleware",
 	"django.contrib.sessions.middleware.SessionMiddleware",
+	"django_session_timeout.middleware.SessionTimeoutMiddleware",
 	"django.middleware.common.CommonMiddleware",
 	"django.middleware.csrf.CsrfViewMiddleware",
 	"django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -63,12 +64,28 @@ TEMPLATES = [
 				"django.template.context_processors.request",
 				"django.contrib.auth.context_processors.auth",
 				"django.contrib.messages.context_processors.messages",
+				"d06.context_processors.session_timeout",
 			],
 		},
 	},
 ]
 
 WSGI_APPLICATION = "d06.wsgi.application"
+
+# Database
+# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+
+DATABASES = {
+	"default": {
+		"ENGINE": "django.db.backends.postgresql_psycopg2",
+		"HOST": config("DB_HOST"),
+		"PORT": config("DB_PORT"),
+		"NAME": config("DB_NAME"),
+		"USER": config("DB_USER"),
+		"PASSWORD": config("DB_PASSWORD"),
+	}
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -116,3 +133,19 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+USERNAMES = [
+    "Albert Einstein",
+    "Isaac Newton",
+    "Nikola Tesla",
+    "Marie Curie",
+    "Galileo Galilei",
+    "Alan Turing",
+    "Richard Feynman",
+    "Niels Bohr",
+    "Max Planck",
+    "Antoine Lavoisier"
+]
+
+SESSION_EXPIRE_SECONDS = 42
+SESSION_TIMEOUT_REDIRECT = "/"

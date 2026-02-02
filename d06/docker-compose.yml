@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15
+    container_name: d06_postgres
+    environment:
+      POSTGRES_DB: d06_db
+      POSTGRES_USER: d06_user
+      POSTGRES_PASSWORD: d06_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

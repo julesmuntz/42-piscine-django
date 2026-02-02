@@ -3,15 +3,12 @@
 
 <head>
 	<title>{{ title }}</title>
+	{% load static %}<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+	{% block header %}{% endblock %}
 </head>
 
 <body>
-	{% load static %}
-	<link rel="stylesheet" href="{% static 'css/star_wars.css' %}" />	
-
-	{% block content %}
-
-	{% endblock %}
+	{% block content %}{% endblock %}
 </body>
 
 </html>

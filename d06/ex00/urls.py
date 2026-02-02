@@ -1,14 +1,19 @@
 from django.urls import path
-from .views import init
+from .views import hello
 
 
-def get_urlpatterns():
+def get_urlpatterns(page_title):
 	return [
 		path(
-			"init/",
-			init,
+			"hello/",
+			hello,
+			{
+				"page_title": page_title,
+			},
 		),
 	]
 
 
-urlpatterns = get_urlpatterns()
+page_title = "Sessions - Anonymous Sessions"
+
+urlpatterns = get_urlpatterns(page_title)

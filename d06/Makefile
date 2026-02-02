@@ -1,6 +1,18 @@
-.PHONY: all run clean-cache clean-venv clean-static clean-local clean
+.PHONY: all run db-start db-stop db-status db-logs clean-cache clean-venv clean-static clean-local clean
 
 all: run
+
+db-start:
+	docker-compose up -d
+
+db-stop:
+	docker-compose down
+
+db-status:
+	docker-compose ps
+
+db-logs:
+	docker-compose logs -f db
 
 run:
 	if [ -d "venv" ]; then \
@@ -8,6 +20,7 @@ run:
 		python3 -m pip install --upgrade pip && \
 		python3 -m pip install -r requirements.txt && \
 		python3 manage.py makemigrations && \
+		python3 manage.py migrate && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	else \
@@ -16,6 +29,7 @@ run:
 		python3 -m pip install --upgrade pip && \
 		python3 -m pip install -r requirements.txt && \
 		python3 manage.py makemigrations && \
+		python3 manage.py migrate && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	fi

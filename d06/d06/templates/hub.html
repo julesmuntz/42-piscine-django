@@ -9,16 +9,11 @@
 				<div class="exercise-group">
 					<div class="exercise-header">
 						<h3 class="exercise-number">{{ ex.name }}</h3>
-						<h2 class="exercise-title">{{ ex.title }}</h2>
 					</div>
 					<div class="exercise-content">
-						{% if ex.name == "ex10" %}
-							<a href="/{{ ex.name }}/" class="hub-button">search</a>
-						{% else %}
-							{% for endpoint in ex.endpoints %}
-								<a href="/{{ ex.name }}/{{ endpoint }}/" class="hub-button">{{ endpoint }}</a>
-							{% endfor %}
-						{% endif %}
+						{% for endpoint in ex.endpoints %}
+							<a href="/{{ ex.name }}/{{ endpoint }}/" class="hub-button-title">{{ ex.title }}</a>
+						{% endfor %}
 					</div>
 				</div>
 			{% endfor %}
