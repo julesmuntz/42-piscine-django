@@ -3,6 +3,10 @@
 {% block header %}
 	<nav class="intro-text-static">{{ message }}</nav>
 	<div class="info-message">
-		Session expires in {{ session_remaining_seconds }} seconds
+	{% if session_remaining_seconds is None %}
+        <p>Session expires in {{ session_total_seconds }} seconds</p>
+	{% else %}
+		<p>Session expires in {{ session_remaining_seconds }} seconds</p>
+	{% endif %}
 	</div>
 {% endblock %}

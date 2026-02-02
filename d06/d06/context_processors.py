@@ -15,9 +15,9 @@ def session_timeout(request):
         if session_init:
             current_time = datetime.now().timestamp()
             elapsed_time = current_time - session_init
-            remaining_seconds = max(0, int(SESSION_EXPIRE_SECONDS - elapsed_time))
+            remaining_seconds = "%.2f" % max(0, float(SESSION_EXPIRE_SECONDS - elapsed_time))
 
     return {
         "session_remaining_seconds": remaining_seconds,
-        "session_total_seconds": SESSION_EXPIRE_SECONDS,
+        "session_total_seconds": "%.2f" % SESSION_EXPIRE_SECONDS,
     }
