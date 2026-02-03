@@ -1,12 +1,13 @@
 from django.shortcuts import render
 from d06.settings import USERNAMES
+from datetime import datetime
 import random
 
 
 def hello(request, page_title):
-    # Session logic: assign username to session if not already set
     if "username" not in request.session:
         request.session["username"] = random.choice(USERNAMES)
+        request.session["_session_init_timestamp_"] = datetime.now().timestamp()
 
     username = request.session["username"]
 

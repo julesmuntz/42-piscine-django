@@ -1,0 +1,33 @@
+{% extends 'd06/templates/base.html' %}
+
+{% block content %}
+{% if action == "Default" %}
+    <nav class="nav-link-container" role="navigation">
+        {% if is_logged_in %}
+        <div class="nav-link">
+            <a href="/ex01/logout/">Logout</a>
+        </div>
+        {% else %}
+        <div class="nav-link">
+            <a href="/ex01/register/">Register</a>
+        </div>
+        <div class="nav-link">
+            <a href="/ex01/login/">Login</a>
+        </div>
+        {% endif %}
+    </nav>
+{% else %}
+    <form method="post" class="auth-form-container">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" value="{{ username|default:'' }}" class="auth-input-field">
+        <input type="password" name="password" placeholder="Password" class="auth-input-field">
+        {% if action == "Register" %}
+            <input type="password" name="password_confirm" placeholder="Confirm Password" class="auth-input-field">
+        {% endif %}
+        <button type="submit" class="button">{{ action }}</button>
+        {% if message %}
+        <p class="error-message">{{ message }}</p>
+        {% endif %}
+    </form>
+{% endif %}
+{% endblock %}

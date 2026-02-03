@@ -1,6 +1,6 @@
 .PHONY: all run db-start db-stop db-status db-logs clean-cache clean-venv clean-static clean-local clean
 
-all: run
+all: run db-start
 
 db-start:
 	docker-compose up -d

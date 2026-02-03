@@ -14,6 +14,6 @@ def get_urlpatterns(page_title):
 	]
 
 
-page_title = "Sessions - Anonymous Sessions"
+page_title = "Anonymous Sessions"
 
 urlpatterns = get_urlpatterns(page_title)
