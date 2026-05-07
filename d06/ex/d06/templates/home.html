@@ -1,0 +1,25 @@
+{% extends 'd06/templates/base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <nav class="nav-link-container" role="navigation">
+        {% if not logged_in %}
+            <div class="nav-link">
+                <a href="/status/">Anonymous Session</a>
+            </div>
+            <div class="nav-link">
+                <a href="/auth/">Authenticated Session</a>
+            </div>
+        {% else %}
+            <div class="nav-link">
+                <a href="/status/">Session Status</a>
+            </div>
+            <div class="nav-link">
+                <a href="/logout/">Logout</a>
+            </div>
+        {% endif %}
+    </nav>
+{% endblock %}

@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:15
+    image: docker.io/library/postgres:15
     container_name: d06_postgres
     environment:
       POSTGRES_DB: d06_db

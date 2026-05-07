@@ -2,7 +2,7 @@ import os
 import ast
 import sys
 
-MIGRATIONS_DIR = "ex00/migrations"
+MIGRATIONS_DIR = "ex/migrations"
 
 
 class RemoveFieldRemover(ast.NodeTransformer):

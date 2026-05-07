@@ -1,20 +1,28 @@
-.PHONY: all run db-start db-stop db-status db-logs clean-cache clean-venv clean-static clean-local clean
+.PHONY: all run db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
 
-all: run db-start
+all: db-start run
 
 db-start:
-	docker-compose up -d
+	docker compose up -d
 
 db-stop:
-	docker-compose down
+	docker compose down
 
 db-status:
-	docker-compose ps
+	docker compose ps
 
 db-logs:
-	docker-compose logs -f db
+	docker compose logs -f db
 
-run:
+wait-db:
+	@echo "Waiting for PostgreSQL on $${DB_HOST:-localhost}:$${DB_PORT:-5432}..."
+	@until python3 -c "import socket; s = socket.socket(); s.settimeout(1); s.connect(('''$${DB_HOST:-localhost}''', int('''$${DB_PORT:-5432}'''))); s.close()"; do \
+		echo "PostgreSQL is not ready yet..."; \
+		sleep 1; \
+	done
+	@echo "PostgreSQL is ready."
+
+run: db-start wait-db
 	if [ -d "venv" ]; then \
 		. venv/bin/activate && \
 		python3 -m pip install --upgrade pip && \

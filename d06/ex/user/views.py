@@ -1,21 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from d06.settings import USERNAMES
-from django.contrib.auth.models import User
+from .models import User
 from datetime import datetime
 from django.contrib.auth import authenticate
-from django.shortcuts import redirect
+import random
 
 
 def is_logged_in(request):
     return bool(request.session.get("username"))
 
+
+# Ex00: Anonymous Sessions
+def status(request, page_title):
+    if "username" not in request.session:
+        request.session["username"] = random.choice(USERNAMES)
+        request.session["_session_init_timestamp_"] = datetime.now().timestamp()
+
+    username = request.session["username"]
+
+    if request.method == "GET":
+        return render(
+            request,
+            "d06/templates/status.html",
+            {
+                "title": page_title,
+                "message": f"Hello {username}!",
+            },
+        )
+
+# Ex01: User Creation
 def auth(request, page_title, action):
     if action in ("Register", "Login") and is_logged_in(request):
         return redirect("/")
     if request.method == "GET":
-        if request.path == "/ex01/register/":
+        if request.path == "/register/":
             action = "Register"
-        elif request.path == "/ex01/login/":
+        elif request.path == "/login/":
             action = "Login"
         return render(
             request,
@@ -33,9 +53,9 @@ def auth(request, page_title, action):
     elif request.method == "POST":
         if is_logged_in(request):
             action = "Logout"
-        elif request.path == "/ex01/register/":
+        elif request.path == "/register/":
             action = "Register"
-        elif request.path == "/ex01/login/":
+        elif request.path == "/login/":
             action = "Login"
 
         if action == "Logout":

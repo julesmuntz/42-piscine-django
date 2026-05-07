@@ -1,0 +1,22 @@
+{% extends 'd06/templates/base.html' %}
+
+{% block content %}
+    <h1>{{ title }}</h1>
+    <div class="message">
+        {{ message }}
+    </div>
+    {% if session_remaining_seconds is not None %}
+    <div class="message">
+        <p>Session expires in {{ session_remaining_seconds }} seconds</p>
+    </div>
+    {% elif session_total_seconds is not None %}
+    <div class="message">
+        <p>Session expires in {{ session_total_seconds }} seconds</p>
+    </div>
+    {% endif %}
+    <div class="nav-link-container">
+        <div class="nav-link">
+            <a href="/">Return to Home</a>
+        </div>
+    </div>
+{% endblock %}
