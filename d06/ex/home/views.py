@@ -16,6 +16,15 @@ def is_anonymous_session(request):
     return bool(request.session.get("anonymous"))
 
 
+def _get_current_user(request):
+    if not is_logged_in(request) or is_anonymous_session(request):
+        return None
+    username = request.session.get("username")
+    if not username:
+        return None
+    return get_user_model().objects.filter(username=username).first()
+
+
 def homepage(request, page_title):
     form = TipForm()
     if request.method == "POST" and is_logged_in(request) and not is_anonymous_session(request):
@@ -33,10 +42,7 @@ def homepage(request, page_title):
     tips = list(Tip.objects.all().order_by("-date"))
     current_user = None
     user_votes_by_tip_id = {}
-    if is_logged_in(request) and not is_anonymous_session(request):
-        username = request.session.get("username")
-        if username:
-            current_user = get_user_model().objects.filter(username=username).first()
+    current_user = _get_current_user(request)
     if current_user:
         user_votes_by_tip_id = {
             vote.tip_id: vote.value
@@ -45,6 +51,11 @@ def homepage(request, page_title):
     for tip in tips:
         tip.score = tip.upvotes - tip.downvotes
         tip.user_vote = user_votes_by_tip_id.get(tip.id, 0)
+        tip.can_delete = bool(
+            current_user
+            and tip.score <= -1
+            and (current_user.is_superuser or tip.author_id == current_user.id)
+        )
 
     return render(
         request,
@@ -190,8 +201,16 @@ def delete_tip(request, tip_id):
     if request.method != "POST" or not is_logged_in(request) or is_anonymous_session(request):
         return redirect("/")
 
+    current_user = _get_current_user(request)
+    if not current_user:
+        return redirect("/")
+
     tip = get_object_or_404(Tip, id=tip_id)
-    if tip.upvotes - tip.downvotes <= -1:
+    can_delete = (
+        tip.upvotes - tip.downvotes <= -1
+        and (current_user.is_superuser or tip.author_id == current_user.id)
+    )
+    if can_delete:
         tip.delete()
     return redirect("/")
 

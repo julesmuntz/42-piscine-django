@@ -84,7 +84,7 @@
             <p class="tip-meta">posted by <span class="tip-author">{{ tip.author.username }}</span> | <span
                     class="tip-date">{{ tip.date }}</span></p>
             <p class="tip-meta">up {{ tip.upvotes }} | down {{ tip.downvotes }}</p>
-            {% if tip.score <= -1 and logged_in and not anonymous %} <form method="post"
+            {% if tip.can_delete %} <form method="post"
                 action="/tips/{{ tip.id }}/delete/" class="tip-delete-form">
                 {% csrf_token %}
                 <button type="submit" class="tip-delete-button">Delete</button>
