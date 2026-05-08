@@ -5,7 +5,11 @@
     <div class="message">
         {{ message }}
     </div>
-    {% if session_remaining_seconds is not None %}
+    {% if session_total_seconds is -1 %}
+    <div class="message">
+        <p>Session never expires</p>
+    </div>
+    {% elif session_remaining_seconds is not None %}
     <div class="message">
         <p>Session expires in {{ session_remaining_seconds }} seconds</p>
     </div>

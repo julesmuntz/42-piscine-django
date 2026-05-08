@@ -1,5 +1,5 @@
 from datetime import datetime
-from d06.settings import SESSION_EXPIRE_SECONDS
+from home.views import is_anonymous_session
 
 
 def session_timeout(request):
@@ -8,16 +8,19 @@ def session_timeout(request):
     Makes 'session_remaining_seconds' available in all templates.
     """
     remaining_seconds = None
+    total_seconds = -1
+    if is_anonymous_session(request):
+        total_seconds = 42
 
-    if request.session.session_key:
+    if request.session.session_key and total_seconds > 0:
         session_init = request.session.get("_session_init_timestamp_")
 
         if session_init:
             current_time = datetime.now().timestamp()
             elapsed_time = current_time - session_init
-            remaining_seconds = "%.2f" % max(0, float(SESSION_EXPIRE_SECONDS - elapsed_time))
+            remaining_seconds = "%.2f" % max(0, float(total_seconds - elapsed_time))
 
     return {
         "session_remaining_seconds": remaining_seconds,
-        "session_total_seconds": "%.2f" % SESSION_EXPIRE_SECONDS,
+        "session_total_seconds": total_seconds,
     }

@@ -39,14 +39,11 @@ INSTALLED_APPS = [
 	"django.contrib.messages",
 	"django.contrib.staticfiles",
 	"home",
-	"user",
-	"tips",
 ]
 
 MIDDLEWARE = [
 	"django.middleware.security.SecurityMiddleware",
 	"django.contrib.sessions.middleware.SessionMiddleware",
-	"django_session_timeout.middleware.SessionTimeoutMiddleware",
 	"django.middleware.common.CommonMiddleware",
 	"django.middleware.csrf.CsrfViewMiddleware",
 	"django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -138,7 +135,7 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom User Model
-AUTH_USER_MODEL = "user.User"
+AUTH_USER_MODEL = "home.User"
 
 USERNAMES = [
     "Albert Einstein",
@@ -152,6 +149,3 @@ USERNAMES = [
     "Max Planck",
     "Antoine Lavoisier"
 ]
-
-SESSION_EXPIRE_SECONDS = 42
-SESSION_TIMEOUT_REDIRECT = "/"
