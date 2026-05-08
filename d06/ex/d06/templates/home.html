@@ -57,7 +57,7 @@
 
             <span class="vote-score">{{ tip.score }}</span>
 
-            {% if logged_in and not anonymous %}
+            {% if tip.can_downvote %}
             <form method="post" action="/tips/{{ tip.id }}/downvote/" class="vote-form">
                 {% csrf_token %}
                 <button type="submit" class="vote-arrow {% if tip.user_vote == -1 %}vote-arrow-active-down{% endif %}"

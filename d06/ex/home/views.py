@@ -27,7 +27,11 @@ def _get_current_user(request):
 
 def homepage(request, page_title):
     form = TipForm()
-    if request.method == "POST" and is_logged_in(request) and not is_anonymous_session(request):
+    if (
+        request.method == "POST"
+        and is_logged_in(request)
+        and not is_anonymous_session(request)
+    ):
         form = TipForm(request.POST)
         username = request.session.get("username")
         if form.is_valid() and username:
@@ -51,6 +55,10 @@ def homepage(request, page_title):
     for tip in tips:
         tip.score = tip.upvotes - tip.downvotes
         tip.user_vote = user_votes_by_tip_id.get(tip.id, 0)
+        tip.can_downvote = bool(
+            current_user
+            and (current_user.is_superuser or tip.author_id == current_user.id)
+        )
         tip.can_delete = bool(
             current_user
             and tip.score <= -1
@@ -198,7 +206,11 @@ def logout(request):
 
 
 def delete_tip(request, tip_id):
-    if request.method != "POST" or not is_logged_in(request) or is_anonymous_session(request):
+    if (
+        request.method != "POST"
+        or not is_logged_in(request)
+        or is_anonymous_session(request)
+    ):
         return redirect("/")
 
     current_user = _get_current_user(request)
@@ -206,9 +218,8 @@ def delete_tip(request, tip_id):
         return redirect("/")
 
     tip = get_object_or_404(Tip, id=tip_id)
-    can_delete = (
-        tip.upvotes - tip.downvotes <= -1
-        and (current_user.is_superuser or tip.author_id == current_user.id)
+    can_delete = tip.upvotes - tip.downvotes <= -1 and (
+        current_user.is_superuser or tip.author_id == current_user.id
     )
     if can_delete:
         tip.delete()
@@ -222,7 +233,11 @@ def _refresh_tip_vote_counts(tip):
 
 
 def _toggle_tip_vote(request, tip_id, vote_value):
-    if request.method != "POST" or not is_logged_in(request) or is_anonymous_session(request):
+    if (
+        request.method != "POST"
+        or not is_logged_in(request)
+        or is_anonymous_session(request)
+    ):
         return redirect("/")
 
     username = request.session.get("username")
@@ -234,6 +249,11 @@ def _toggle_tip_vote(request, tip_id, vote_value):
         return redirect("/")
 
     tip = get_object_or_404(Tip, id=tip_id)
+    if vote_value == Vote.DOWNVOTE and not (
+        user.is_superuser or tip.author_id == user.id
+    ):
+        return redirect("/")
+
     vote = Vote.objects.filter(tip=tip, user=user).first()
     if vote is None:
         Vote.objects.create(tip=tip, user=user, value=vote_value)
