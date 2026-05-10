@@ -3,15 +3,18 @@
 {% block header %}
 {% endblock %}
 
+{% block parent_nav %}
+	<span class="site-parent-spacer" aria-hidden="true"></span>
+{% endblock %}
+
 {% block content %}
-<h1><a href="/">{{ title }}</a></h1>
 <nav class="nav-link-container" role="navigation">
     {% if not logged_in %}
     <div class="nav-link">
         <a href="/status/">Anonymous Session</a>
     </div>
     <div class="nav-link">
-        <a href="/auth/">Authenticated Session</a>
+        <a href="/login/">Authenticated Session</a>
     </div>
     {% else %}
     <div class="nav-link">

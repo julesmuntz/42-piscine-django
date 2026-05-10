@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic.base import RedirectView
 from .views import auth, delete_tip, downvote, homepage, logout, status, upvote
 
 
@@ -18,11 +19,10 @@ urlpatterns = [
             "page_title": "Session Status",
         },
     ),
-    # Ex01: User Creation
+    # Ex01: User Creation (legacy /auth/ → login)
     path(
         "auth/",
-        auth,
-        {"page_title": "Authenticate", "action": "Default"},
+        RedirectView.as_view(url="/login/", query_string=True),
     ),
     path(
         "login/",

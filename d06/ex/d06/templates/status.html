@@ -1,5 +1,9 @@
 {% extends 'd06/templates/base.html' %}
 
+{% block parent_nav %}
+	<a href="/" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
+{% endblock %}
+
 {% block content %}
     <h1>{{ title }}</h1>
     <div class="message">
@@ -18,9 +22,4 @@
         <p>Session expires in {{ session_total_seconds }} seconds</p>
     </div>
     {% endif %}
-    <div class="nav-link-container">
-        <div class="nav-link">
-            <a href="/">Return to Home</a>
-        </div>
-    </div>
 {% endblock %}

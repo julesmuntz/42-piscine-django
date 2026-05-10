@@ -117,7 +117,6 @@ def auth(request, page_title, action):
                 "password": "",
                 "password_confirm": "",
                 "action": action,
-                "is_logged_in": is_logged_in(request),
             },
         )
 
