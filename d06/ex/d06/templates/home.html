@@ -84,7 +84,7 @@
         </div>
         <div class="tip-body">
             <p class="tip-content">{{ tip.content }}</p>
-            <p class="tip-meta">posted by <span class="tip-author">{{ tip.author.username }}</span> | <span
+            <p class="tip-meta">posted by <span class="tip-author">{{ tip.author.username }} [{{ tip.author.reputation }}]</span> | <span
                     class="tip-date">{{ tip.date }}</span></p>
             <p class="tip-meta">up {{ tip.upvotes }} | down {{ tip.downvotes }}</p>
             {% if tip.can_delete %} <form method="post"

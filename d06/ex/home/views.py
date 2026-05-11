@@ -4,7 +4,7 @@ from .models import Tip, User, Vote
 from .forms import TipForm
 from d06.settings import USERNAMES
 from datetime import datetime
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout as auth_logout
 import random
 
 
@@ -57,12 +57,20 @@ def homepage(request, page_title):
         tip.user_vote = user_votes_by_tip_id.get(tip.id, 0)
         tip.can_downvote = bool(
             current_user
-            and (current_user.is_superuser or tip.author_id == current_user.id)
+            and (
+                current_user.is_superuser
+                or tip.author_id == current_user.id
+                or current_user.reputation >= 15
+            )
         )
         tip.can_delete = bool(
             current_user
             and tip.score <= -1
-            and (current_user.is_superuser or tip.author_id == current_user.id)
+            and (
+                current_user.is_superuser
+                or tip.author_id == current_user.id
+                or current_user.reputation >= 30
+            )
         )
 
     return render(
@@ -152,6 +160,7 @@ def auth(request, page_title, action):
                 request.session["anonymous"] = False
                 request.session["_session_init_timestamp_"] = datetime.now().timestamp()
                 request.session.set_expiry(None)
+                login(request, user)
                 return redirect("/")
             except Exception as e:
                 return render(
@@ -182,6 +191,7 @@ def auth(request, page_title, action):
                         datetime.now().timestamp()
                     )
                     request.session.set_expiry(None)
+                    login(request, user)
                     return redirect("/")
                 else:
                     raise Exception("Invalid username or password")
@@ -200,8 +210,17 @@ def auth(request, page_title, action):
 
 
 def logout(request):
-    request.session.flush()
+    auth_logout(request)
     return redirect("/")
+
+
+def _update_author_reputation(author, user, vote_value, upvote_delta, downvote_delta):
+    if author.id != user.id:
+        if vote_value == Vote.UPVOTE:
+            author.reputation += upvote_delta
+        elif vote_value == Vote.DOWNVOTE:
+            author.reputation += downvote_delta
+        author.save(update_fields=["reputation"])
 
 
 def delete_tip(request, tip_id):
@@ -221,6 +240,9 @@ def delete_tip(request, tip_id):
         current_user.is_superuser or tip.author_id == current_user.id
     )
     if can_delete:
+        votes = Vote.objects.filter(tip=tip)
+        for vote in votes:
+            _update_author_reputation(tip.author, vote.user, vote.value, -5, 2)
         tip.delete()
     return redirect("/")
 
@@ -254,13 +276,17 @@ def _toggle_tip_vote(request, tip_id, vote_value):
         return redirect("/")
 
     vote = Vote.objects.filter(tip=tip, user=user).first()
+    author = tip.author
     if vote is None:
         Vote.objects.create(tip=tip, user=user, value=vote_value)
+        _update_author_reputation(author, user, vote_value, 5, -2)
     elif vote.value == vote_value:
         vote.delete()
+        _update_author_reputation(author, user, vote_value, -5, 2)
     else:
         vote.value = vote_value
         vote.save(update_fields=["value"])
+        _update_author_reputation(author, user, vote_value, 7, -7)
 
     _refresh_tip_vote_counts(tip)
     return redirect("/")

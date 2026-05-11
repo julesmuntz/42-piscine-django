@@ -11,6 +11,9 @@
 	<div class="container">
 		<header class="site-header">
 			<a href="/" class="site-brand">Life Pro Tips</a>
+            {% if user.is_authenticated %}
+                <p class="site-header-user">User: {{ user.username }} [{{ user.reputation }}]</p>
+            {% endif %}
 			<div class="site-header-end">
 				{% block parent_nav %}{% endblock %}
 			</div>
