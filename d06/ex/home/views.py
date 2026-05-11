@@ -25,6 +25,13 @@ def _get_current_user(request):
     return get_user_model().objects.filter(username=username).first()
 
 
+def _user_can_downvote(user, tip):
+    return bool(
+        user
+        and (user.is_superuser or tip.author_id == user.id or user.reputation >= 15)
+    )
+
+
 def homepage(request, page_title):
     form = TipForm()
     if (
@@ -55,14 +62,7 @@ def homepage(request, page_title):
     for tip in tips:
         tip.score = tip.upvotes - tip.downvotes
         tip.user_vote = user_votes_by_tip_id.get(tip.id, 0)
-        tip.can_downvote = bool(
-            current_user
-            and (
-                current_user.is_superuser
-                or tip.author_id == current_user.id
-                or current_user.reputation >= 15
-            )
-        )
+        tip.can_downvote = bool(current_user and _user_can_downvote(current_user, tip))
         tip.can_delete = bool(
             current_user
             and tip.score <= -1
@@ -237,7 +237,9 @@ def delete_tip(request, tip_id):
 
     tip = get_object_or_404(Tip, id=tip_id)
     can_delete = tip.upvotes - tip.downvotes <= -1 and (
-        current_user.is_superuser or tip.author_id == current_user.id
+        current_user.is_superuser
+        or tip.author_id == current_user.id
+        or current_user.reputation >= 30
     )
     if can_delete:
         votes = Vote.objects.filter(tip=tip)
@@ -270,9 +272,7 @@ def _toggle_tip_vote(request, tip_id, vote_value):
         return redirect("/")
 
     tip = get_object_or_404(Tip, id=tip_id)
-    if vote_value == Vote.DOWNVOTE and not (
-        user.is_superuser or tip.author_id == user.id
-    ):
+    if vote_value == Vote.DOWNVOTE and not _user_can_downvote(user, tip):
         return redirect("/")
 
     vote = Vote.objects.filter(tip=tip, user=user).first()
