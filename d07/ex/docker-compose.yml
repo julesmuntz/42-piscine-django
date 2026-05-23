@@ -1,0 +1,16 @@
+services:
+  db:
+    image: docker.io/library/postgres:15
+    container_name: d07_postgres
+    environment:
+      POSTGRES_DB: d07_db
+      POSTGRES_USER: d07_user
+      POSTGRES_PASSWORD: d07_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

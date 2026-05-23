@@ -1,0 +1,68 @@
+{% extends 'd07/templates/base.html' %}
+
+{% block parent_nav %}
+	{% if action == "Login" %}
+		<a href="/" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
+	{% elif action == "Register" %}
+		<a href="/login/" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="auth-box">
+	<h1>{{ title }}</h1>
+	<form method="post" class="auth-stack">
+			{% csrf_token %}
+			<div class="auth-field">
+				<label for="auth-username">Username</label>
+				<input
+					id="auth-username"
+					type="text"
+					name="username"
+					autocomplete="username"
+					value="{{ username|default:'' }}"
+					required
+				/>
+			</div>
+			<div class="auth-field">
+				<label for="auth-password">Password</label>
+				<input
+					id="auth-password"
+					type="password"
+					name="password"
+					autocomplete="{% if action == 'Register' %}new-password{% else %}current-password{% endif %}"
+					required
+				/>
+			</div>
+			{% if action == "Register" %}
+				<div class="auth-field">
+					<label for="auth-password-confirm">Confirm password</label>
+					<input
+						id="auth-password-confirm"
+						type="password"
+						name="password_confirm"
+						autocomplete="new-password"
+						required
+					/>
+				</div>
+			{% endif %}
+			{% if message %}
+				<p class="auth-error">{{ message }}</p>
+			{% endif %}
+			<button type="submit" class="auth-submit">{{ action }}</button>
+		</form>
+		{% if action == "Login" or action == "Register" %}
+			<div class="nav-link-container auth-after">
+				{% if action == "Login" %}
+					<div class="nav-link">
+						<a href="/register/">Register</a>
+					</div>
+				{% elif action == "Register" %}
+					<div class="nav-link">
+						<a href="/login/">Login</a>
+					</div>
+				{% endif %}
+			</div>
+		{% endif %}
+</div>
+{% endblock %}
