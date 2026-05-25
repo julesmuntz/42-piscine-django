@@ -1,167 +1,168 @@
-from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth import get_user_model
-from .models import Article, User, UserFavoriteArticle
-from datetime import datetime
-from django.contrib.auth import authenticate, login, logout as auth_logout
+from django.contrib.auth import login
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView, LogoutView
+from django.urls import reverse_lazy
+from django.shortcuts import get_object_or_404, redirect
+from django.views import View
+from django.views.generic import CreateView, ListView, RedirectView, DetailView
+from .forms import ArticleForm, RegisterForm
+from .models import Article, UserFavoriteArticle
 
 
 def is_logged_in(request):
-    return bool(request.session.get("username"))
+    return request.user.is_authenticated
 
 
-def _get_current_user(request):
-    if not is_logged_in(request):
-        return None
-    username = request.session.get("username")
-    if not username:
-        return None
-    return get_user_model().objects.filter(username=username).first()
+class HomeView(RedirectView):
+    url = reverse_lazy("articles")
 
 
-def homepage(request, page_title):
+class AuthContextMixin:
+    template_name = "d07/templates/login.html"
+    page_title = ""
+    action = ""
 
-    return render(
-        request,
-        "d07/templates/home.html",
-        {
-            "title": page_title,
-            "logged_in": is_logged_in(request),
-        },
-    )
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        form = context.get("form")
+        context["title"] = self.page_title
+        context["action"] = self.action
+        context["username"] = form["username"].value() if form else ""
+        context["message"] = self._get_error_message(form)
+        return context
+
+    def _get_error_message(self, form):
+        if not form or not form.errors:
+            return ""
+
+        non_field_errors = form.non_field_errors()
+        if non_field_errors:
+            return non_field_errors[0]
+
+        for field_errors in form.errors.values():
+            if field_errors:
+                return field_errors[0]
+
+        return ""
 
 
-def auth(request, page_title, action):
-    if action in ("Register", "Login") and is_logged_in(request):
-        return redirect("/")
-    if request.method == "GET":
-        if request.path == "/register/":
-            action = "Register"
-        elif request.path == "/login/":
-            action = "Login"
-        return render(
-            request,
-            "d07/templates/auth.html",
-            {
-                "title": page_title,
-                "username": "",
-                "password": "",
-                "password_confirm": "",
-                "action": action,
-            },
+class AuthRegisterView(AuthContextMixin, CreateView):
+    form_class = RegisterForm
+    success_url = reverse_lazy("home")
+    page_title = "Register"
+    action = "Register"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("home")
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
+
+
+class AuthLoginView(AuthContextMixin, LoginView):
+    page_title = "Login"
+    action = "Login"
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        return str(reverse_lazy("home"))
+
+
+class AuthLogoutView(LogoutView):
+    next_page = reverse_lazy("home")
+
+
+class ArticleListView(ListView):
+    model = Article
+    template_name = "d07/templates/articles.html"
+    context_object_name = "articles"
+
+    def get_queryset(self):
+        return Article.objects.all().order_by("-created")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["logged_in"] = is_logged_in(self.request)
+        return context
+
+
+class ArticleView(DetailView):
+    model = Article
+    template_name = "d07/templates/article.html"
+    context_object_name = "article"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.object.title
+        return context
+
+
+class PublicationListView(LoginRequiredMixin, CreateView):
+    model = Article
+    template_name = "d07/templates/publications.html"
+    context_object_name = "publications"
+    form_class = ArticleForm
+    success_url = reverse_lazy("publications")
+    login_url = reverse_lazy("login")
+
+    def get_queryset(self):
+        return Article.objects.filter(author=self.request.user).order_by("-created")
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["logged_in"] = is_logged_in(self.request)
+        context["publications"] = self.get_queryset()
+        return context
+
+
+class PublicationView(LoginRequiredMixin, DetailView):
+    model = Article
+    template_name = "d07/templates/publication.html"
+    context_object_name = "publication"
+    login_url = reverse_lazy("login")
+
+    def get_queryset(self):
+        return Article.objects.filter(author=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.object.title
+        return context
+
+
+class FavoriteArticlesView(LoginRequiredMixin, ListView):
+    model = UserFavoriteArticle
+    template_name = "d07/templates/favorites.html"
+    context_object_name = "favorite_articles"
+    login_url = reverse_lazy("login")
+
+    def get_queryset(self):
+        return (
+            Article.objects.filter(userfavoritearticle__user=self.request.user)
+            .order_by("-created")
+            .distinct()
         )
 
-    elif request.method == "POST":
-        if is_logged_in(request):
-            action = "Logout"
-        elif request.path == "/register/":
-            action = "Register"
-        elif request.path == "/login/":
-            action = "Login"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["logged_in"] = is_logged_in(self.request)
+        return context
 
-        if action == "Logout":
-            return logout(request)
-        elif action == "Register":
-            try:
-                username = request.POST.get("username") or ""
-                password = request.POST.get("password") or ""
-                password_confirm = request.POST.get("password_confirm") or ""
-                if not username:
-                    raise Exception("Username is required")
-                if username and User.objects.filter(username=username).exists():
-                    raise Exception("User already exists")
-                if not password:
-                    raise Exception("Password is required")
-                if not password_confirm:
-                    raise Exception("Password confirmation is required")
-                if password != password_confirm:
-                    raise Exception("Passwords do not match")
+class AddFavoriteArticleView(LoginRequiredMixin, View):
+    login_url = reverse_lazy("login")
 
-                user = User.objects.create_user(username, password=password)
-                user.save()
-                request.session["username"] = username
-                request.session["anonymous"] = False
-                request.session["_session_init_timestamp_"] = datetime.now().timestamp()
-                request.session.set_expiry(None)
-                login(request, user)
-                return redirect("/")
-            except Exception as e:
-                return render(
-                    request,
-                    "d07/templates/auth.html",
-                    {
-                        "title": page_title,
-                        "username": username,
-                        "password": password,
-                        "password_confirm": password_confirm,
-                        "message": str(e),
-                        "action": action,
-                    },
-                )
-        elif action == "Login":
-            try:
-                username = request.POST.get("username") or ""
-                password = request.POST.get("password") or ""
-                if not username:
-                    raise Exception("Username is required")
-                if not password:
-                    raise Exception("Password is required")
-                user = authenticate(request, username=username, password=password)
-                if user is not None:
-                    request.session["username"] = username
-                    request.session["anonymous"] = False
-                    request.session["_session_init_timestamp_"] = (
-                        datetime.now().timestamp()
-                    )
-                    request.session.set_expiry(None)
-                    login(request, user)
-                    return redirect("/")
-                else:
-                    raise Exception("Invalid username or password")
-            except Exception as e:
-                return render(
-                    request,
-                    "d07/templates/auth.html",
-                    {
-                        "title": page_title,
-                        "username": username,
-                        "password": password,
-                        "message": str(e),
-                        "action": action,
-                    },
-                )
-
-
-def logout(request):
-    auth_logout(request)
-    return redirect("/")
-
-
-def _update_author_reputation(author, user, vote_value, upvote_delta, downvote_delta):
-    if author.id != user.id:
-        if vote_value == Vote.UPVOTE:
-            author.reputation += upvote_delta
-        elif vote_value == Vote.DOWNVOTE:
-            author.reputation += downvote_delta
-        author.save(update_fields=["reputation"])
-
-
-def delete_tip(request, tip_id):
-    if request.method != "POST" or not is_logged_in(request):
-        return redirect("/")
-
-    current_user = _get_current_user(request)
-    if not current_user:
-        return redirect("/")
-
-    tip = get_object_or_404(Tip, id=tip_id)
-    can_delete = tip.upvotes - tip.downvotes <= -1 and (
-        current_user.is_superuser
-        or tip.author_id == current_user.id
-        or current_user.reputation >= 30
-    )
-    if can_delete:
-        votes = Vote.objects.filter(tip=tip)
-        for vote in votes:
-            _update_author_reputation(tip.author, vote.user, vote.value, -5, 2)
-        tip.delete()
-    return redirect("/")
+    def post(self, request, pk, *args, **kwargs):
+        article = get_object_or_404(Article, pk=pk)
+        UserFavoriteArticle.objects.get_or_create(
+            user=request.user,
+            article=article,
+        )
+        return redirect("favorites")

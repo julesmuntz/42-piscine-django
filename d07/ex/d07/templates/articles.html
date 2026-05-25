@@ -1,0 +1,48 @@
+{% extends 'd07/templates/base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block parent_nav %}
+<span class="site-parent-spacer" aria-hidden="true"></span>
+{% endblock %}
+
+{% block content %}
+<nav class="nav-link-container" role="navigation">
+    {% if not logged_in %}
+    <div class="nav-link">
+        <a href="{% url 'login' %}">Login</a>
+    </div>
+    {% else %}
+    <div class="nav-link">
+        <a href="{% url 'publications' %}">Publications</a>
+    </div>
+    <div class="nav-link">
+        <a href="{% url 'favorites' %}">Favorites</a>
+    </div>
+    <div class="nav-link">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+    {% endif %}
+</nav>
+<section class="article-list" aria-label="Articles list">
+    {% for article in articles %}
+    <article class="article-card">
+        <div class="article-body">
+            <h2 class="article-title">
+                <a href="{% url 'article' article.pk %}">{{ article.title }}</a>
+            </h2>
+            <p class="article-synopsis">{{ article.synopsis }}</p>
+            <p class="article-meta">posted by <span class="article-author">{{ article.author.username }}</span> | <span
+                    class="article-date">{{ article.created }}</span></p>
+        </div>
+    </article>
+    {% empty %}
+    <p class="article-meta">No articles yet.</p>
+    {% endfor %}
+</section>
+
+{% endblock %}

@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 
 
 class User(AbstractUser):
-    reputation = models.IntegerField(default=0)
-
     def __str__(self):
         return self.username
 

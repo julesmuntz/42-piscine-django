@@ -1,0 +1,38 @@
+{% extends 'd07/templates/base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block parent_nav %}
+<span class="site-parent-spacer" aria-hidden="true"></span>
+{% endblock %}
+
+{% block content %}
+<nav class="nav-link-container" role="navigation">
+    <div class="nav-link">
+        <a href="{% url 'articles' %}">Back to articles</a>
+    </div>
+    {% if user.is_authenticated %}
+    <div class="nav-link">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="nav-link">
+        <a href="{% url 'login' %}">Login</a>
+    </div>
+    {% endif %}
+</nav>
+
+<h1>{{ article.title }}</h1>
+<p>posted by <span class="article-author">{{ article.author.username }}</span> | <span class="article-date">{{
+        article.created }}</span></p>
+<form method="post" action="{% url 'favorite' article.pk %}">
+    {% csrf_token %}
+    <button type="submit">Add to favorites</button>
+</form>
+<p>{{ article.synopsis }}</p>
+<p>{{ article.content }}</p>
+{% endblock %}

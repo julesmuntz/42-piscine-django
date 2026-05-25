@@ -1,0 +1,54 @@
+{% extends 'd07/templates/base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block parent_nav %}
+<span class="site-parent-spacer" aria-hidden="true"></span>
+{% endblock %}
+
+{% block content %}
+<nav class="nav-link-container" role="navigation">
+    <div class="nav-link">
+        <a href="{% url 'articles' %}">Back to articles</a>
+    </div>
+    <div class="nav-link">
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </div>
+</nav>
+
+<h1>{{ user.username }}'s publications</h1>
+
+<form method="post" action="{% url 'publications' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.title.errors }}
+    {{ form.title }}
+    {{ form.synopsis.errors }}
+    {{ form.synopsis }}
+    {{ form.content.errors }}
+    {{ form.content }}
+    <button type="submit">Publish Article</button>
+</form>
+
+<section class="article-list" aria-label="My publications">
+    {% for publication in publications %}
+    <article class="article-card">
+        <div class="article-body">
+            <h2 class="article-title">
+                <a href="{% url 'publication' publication.pk %}">{{ publication.title }}</a>
+            </h2>
+            <p class="article-synopsis">{{ publication.synopsis }}</p>
+            <p class="article-meta">
+                posted on <span class="article-date">{{ publication.created }}</span>
+            </p>
+        </div>
+    </article>
+    {% empty %}
+    <p class="article-meta">You have not published any articles yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'd07/templates/base.html' %}
+
+{% block content %}
+<h1>Favorite Articles</h1>
+{% for article in favorite_articles %}
+<p>{{ article.title }}</p>
+{% endfor %}
+{% endblock %}

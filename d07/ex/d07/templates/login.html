@@ -2,9 +2,9 @@
 
 {% block parent_nav %}
 	{% if action == "Login" %}
-		<a href="/" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
+		<a href="{% url 'home' %}" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
 	{% elif action == "Register" %}
-		<a href="/login/" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
+		<a href="{% url 'login' %}" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
 	{% endif %}
 {% endblock %}
 
@@ -55,11 +55,11 @@
 			<div class="nav-link-container auth-after">
 				{% if action == "Login" %}
 					<div class="nav-link">
-						<a href="/register/">Register</a>
+						<a href="{% url 'register' %}">Register</a>
 					</div>
 				{% elif action == "Register" %}
 					<div class="nav-link">
-						<a href="/login/">Login</a>
+						<a href="{% url 'login' %}">Login</a>
 					</div>
 				{% endif %}
 			</div>
