@@ -1,38 +1,28 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
 
-{% block header %}
-{% endblock %}
+{% block title %}{{ article.title }}{% endblock %}
 
-{% block parent_nav %}
-<span class="site-parent-spacer" aria-hidden="true"></span>
-{% endblock %}
+{% block page_heading %}{{ article.title }} <small>{% trans "Article details" %}</small>{% endblock %}
 
 {% block content %}
-<nav class="nav-link-container" role="navigation">
-    <div class="nav-link">
-        <a href="{% url 'articles' %}">Back to articles</a>
-    </div>
-    {% if user.is_authenticated %}
-    <div class="nav-link">
-        <form method="post" action="{% url 'logout' %}">
+<p>
+    <a href="{% url 'articles' %}" class="btn btn-default btn-sm">{% trans "Back to articles" %}</a>
+</p>
+<div class="panel panel-default">
+    <div class="panel-heading clearfix">
+        <strong>{{ article.author.username }}</strong>
+        <span class="text-muted">{% blocktrans with created=article.created|date:"M. j, Y, P" %}posted on {{ created }}{% endblocktrans %}</span>
+        {% if user.is_authenticated %}
+        <form class="pull-right" method="post" action="{% url 'favorite' article.pk %}">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit" class="btn btn-info btn-xs">{% trans "Add to favorites" %}</button>
         </form>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="nav-link">
-        <a href="{% url 'login' %}">Login</a>
+    <div class="panel-body">
+        <p class="lead">{{ article.synopsis }}</p>
+        {{ article.content|linebreaks }}
     </div>
-    {% endif %}
-</nav>
-
-<h1>{{ article.title }}</h1>
-<p>posted by <span class="article-author">{{ article.author.username }}</span> | <span class="article-date">{{
-        article.created }}</span></p>
-<form method="post" action="{% url 'favorite' article.pk %}">
-    {% csrf_token %}
-    <button type="submit">Add to favorites</button>
-</form>
-<p>{{ article.synopsis }}</p>
-<p>{{ article.content }}</p>
+</div>
 {% endblock %}

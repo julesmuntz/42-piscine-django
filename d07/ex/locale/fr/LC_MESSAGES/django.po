@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: d07\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-26 18:45+0200\n"
+"PO-Revision-Date: 2026-05-26 18:45+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Access your account"
+msgstr "Accedez a votre compte"
+
+msgid "Add to favorites"
+msgstr "Ajouter aux favoris"
+
+msgid "Article details"
+msgstr "Details de l'article"
+
+msgid "Articles"
+msgstr "Articles"
+
+msgid "Back to articles"
+msgstr "Retour aux articles"
+
+msgid "Back to publications"
+msgstr "Retour aux publications"
+
+msgid "Confirm password"
+msgstr "Confirmer le mot de passe"
+
+msgid "Content"
+msgstr "Contenu"
+
+msgid "Created"
+msgstr "Cree"
+
+msgid "Favorites"
+msgstr "Favoris"
+
+msgid "Home"
+msgstr "Accueil"
+
+msgid "Logged as %(username)s"
+msgstr "Connecte en tant que %(username)s"
+
+msgid "Login"
+msgstr "Connexion"
+
+msgid "Logout"
+msgstr "Deconnexion"
+
+msgid "No articles yet."
+msgstr "Aucun article pour le moment."
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Password confirmation is required"
+msgstr "La confirmation du mot de passe est obligatoire"
+
+msgid "Passwords do not match"
+msgstr "Les mots de passe ne correspondent pas"
+
+msgid "Password is required"
+msgstr "Le mot de passe est obligatoire"
+
+msgid "posted on %(created)s"
+msgstr "publie le %(created)s"
+
+msgid "Publication details"
+msgstr "Details de la publication"
+
+msgid "Publications"
+msgstr "Publications"
+
+msgid "Publish article"
+msgstr "Publier l'article"
+
+msgid "Publish a new article"
+msgstr "Publier un nouvel article"
+
+msgid "Register"
+msgstr "Inscription"
+
+msgid "Share your writings"
+msgstr "Partagez vos ecrits"
+
+msgid "Synopsis"
+msgstr "Synopsis"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "User already exists"
+msgstr "Cet utilisateur existe deja"
+
+msgid "Username"
+msgstr "Nom d'utilisateur"
+
+msgid "Username is required"
+msgstr "Le nom d'utilisateur est obligatoire"
+
+msgid "When"
+msgstr "Quand"
+
+msgid "Write and manage your posts"
+msgstr "Redigez et gerez vos publications"
+
+msgid "Writer"
+msgstr "Auteur"
+
+msgid "You have not added any favorites yet."
+msgstr "Vous n'avez encore ajoute aucun favori."
+
+msgid "You have not published any articles yet."
+msgstr "Vous n'avez encore publie aucun article."
+
+msgid "Your saved articles"
+msgstr "Vos articles sauvegardes"
+
+msgid "%(time_since)s ago"
+msgstr "il y a %(time_since)s"
+
+msgid "%(username)s's publications"
+msgstr "Publications de %(username)s"

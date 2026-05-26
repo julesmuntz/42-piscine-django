@@ -1,54 +1,78 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
 
-{% block header %}
-{% endblock %}
+{% block title %}{% trans "Publications" %}{% endblock %}
 
-{% block parent_nav %}
-<span class="site-parent-spacer" aria-hidden="true"></span>
-{% endblock %}
+{% block page_heading %}{% trans "Publications" %} <small>{% trans "Write and manage your posts" %}</small>{% endblock %}
 
 {% block content %}
-<nav class="nav-link-container" role="navigation">
-    <div class="nav-link">
-        <a href="{% url 'articles' %}">Back to articles</a>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong>{% trans "Publish a new article" %}</strong>
     </div>
-    <div class="nav-link">
-        <form method="post" action="{% url 'logout' %}">
+    <div class="panel-body">
+        <form method="post" action="{% url 'publications' %}">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+            <div class="form-group{% if form.title.errors %} has-error{% endif %}">
+                <label for="{{ form.title.id_for_label }}">{% trans "Title" %}</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group{% if form.synopsis.errors %} has-error{% endif %}">
+                <label for="{{ form.synopsis.id_for_label }}">{% trans "Synopsis" %}</label>
+                {{ form.synopsis }}
+                {% for error in form.synopsis.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group{% if form.content.errors %} has-error{% endif %}">
+                <label for="{{ form.content.id_for_label }}">{% trans "Content" %}</label>
+                {{ form.content }}
+                {% for error in form.content.errors %}
+                <span class="help-block">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary">{% trans "Publish article" %}</button>
         </form>
     </div>
-</nav>
+</div>
 
-<h1>{{ user.username }}'s publications</h1>
-
-<form method="post" action="{% url 'publications' %}">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    {{ form.title.errors }}
-    {{ form.title }}
-    {{ form.synopsis.errors }}
-    {{ form.synopsis }}
-    {{ form.content.errors }}
-    {{ form.content }}
-    <button type="submit">Publish Article</button>
-</form>
-
-<section class="article-list" aria-label="My publications">
-    {% for publication in publications %}
-    <article class="article-card">
-        <div class="article-body">
-            <h2 class="article-title">
-                <a href="{% url 'publication' publication.pk %}">{{ publication.title }}</a>
-            </h2>
-            <p class="article-synopsis">{{ publication.synopsis }}</p>
-            <p class="article-meta">
-                posted on <span class="article-date">{{ publication.created }}</span>
-            </p>
-        </div>
-    </article>
-    {% empty %}
-    <p class="article-meta">You have not published any articles yet.</p>
-    {% endfor %}
-</section>
+<h3>{% blocktrans with username=user.username %}{{ username }}'s publications{% endblocktrans %}</h3>
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Synopsis" %}</th>
+                <th>{% trans "Created" %}</th>
+                <th>{% trans "When" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for publication in publications %}
+            <tr
+                data-href="{% url 'publication' publication.pk %}"
+                onclick="window.location=this.dataset.href;"
+                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location=this.dataset.href; }"
+                tabindex="0"
+                style="cursor: pointer;"
+            >
+                <td>{{ publication.title }}</td>
+                <td>{{ publication.synopsis|truncatechars:20 }}</td>
+                <td>{{ publication.created|date:"M. j, Y, P" }}</td>
+                <td>{% blocktrans with time_since=publication.created|timesince %}{{ time_since }} ago{% endblocktrans %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-muted">{% trans "You have not published any articles yet." %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

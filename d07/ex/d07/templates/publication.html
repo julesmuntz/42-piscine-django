@@ -1,27 +1,22 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
 
-{% block header %}
-{% endblock %}
+{% block title %}{{ publication.title }}{% endblock %}
 
-{% block parent_nav %}
-<span class="site-parent-spacer" aria-hidden="true"></span>
-{% endblock %}
+{% block page_heading %}{{ publication.title }} <small>{% trans "Publication details" %}</small>{% endblock %}
 
 {% block content %}
-<nav class="nav-link-container" role="navigation">
-    <div class="nav-link">
-        <a href="{% url 'publications' %}">Back to publications</a>
+<p>
+    <a href="{% url 'publications' %}" class="btn btn-default btn-sm">{% trans "Back to publications" %}</a>
+</p>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <strong>{{ user.username }}</strong>
+        <span class="text-muted">{% blocktrans with created=publication.created|date:"M. j, Y, P" %}posted on {{ created }}{% endblocktrans %}</span>
     </div>
-    <div class="nav-link">
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
+    <div class="panel-body">
+        <p class="lead">{{ publication.synopsis }}</p>
+        {{ publication.content|linebreaks }}
     </div>
-</nav>
-
-<h1>{{ publication.title }}</h1>
-<p>posted on <span class="article-date">{{ publication.created }}</span></p>
-<p>{{ publication.synopsis }}</p>
-<p>{{ publication.content }}</p>
+</div>
 {% endblock %}

@@ -1,8 +1,43 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Favorites" %}{% endblock %}
+
+{% block page_heading %}{% trans "Favorites" %} <small>{% trans "Your saved articles" %}</small>{% endblock %}
 
 {% block content %}
-<h1>Favorite Articles</h1>
-{% for article in favorite_articles %}
-<p>{{ article.title }}</p>
-{% endfor %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Synopsis" %}</th>
+                <th>{% trans "Writer" %}</th>
+                <th>{% trans "Created" %}</th>
+                <th>{% trans "When" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in favorite_articles %}
+            <tr
+                data-href="{% url 'article' article.pk %}"
+                onclick="window.location=this.dataset.href;"
+                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location=this.dataset.href; }"
+                tabindex="0"
+                style="cursor: pointer;"
+            >
+                <td>{{ article.title }}</td>
+                <td>{{ article.synopsis|truncatechars:120 }}</td>
+                <td>{{ article.author.username }}</td>
+                <td>{{ article.created|date:"M. j, Y, P" }}</td>
+                <td>{% blocktrans with time_since=article.created|timesince %}{{ time_since }} ago{% endblocktrans %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-muted">{% trans "You have not added any favorites yet." %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

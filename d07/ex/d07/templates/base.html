@@ -1,25 +1,118 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{% trans "Articles" as default_title %}
 <!DOCTYPE html>
-<html>
-
+<html lang="{{ CURRENT_LANGUAGE }}">
 <head>
-	<title>{{ title }}</title>
-	{% load static %}<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{% block title %}{{ title|default:default_title }}{% endblock %}</title>
+	<link
+		rel="stylesheet"
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+	/>
+	<style>
+		html,
+		body,
+		* {
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+		}
+
+		*::-webkit-scrollbar {
+			display: none;
+		}
+
+		.navbar-form {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+
+		.navbar-form.navbar-right {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			min-height: 50px;
+		}
+
+		.navbar-form .form-group {
+			margin: 0;
+		}
+
+		.navbar-form .form-control,
+		.navbar-form .btn {
+			height: 34px;
+		}
+
+		.navbar-form .btn {
+			padding-top: 6px;
+			padding-bottom: 6px;
+		}
+	</style>
 	{% block header %}{% endblock %}
 </head>
-
 <body>
 	<div class="container">
-		<header class="site-header">
-			<a href="/" class="site-brand">Articles</a>
-            {% if user.is_authenticated %}
-                <p class="site-header-user">Welcome, {{ user.username }}.</p>
-            {% endif %}
-			<div class="site-header-end">
-				{% block parent_nav %}{% endblock %}
+		<header class="page-header clearfix">
+			<div class="pull-right text-right">
+				{% block top_link %}
+				{% if CURRENT_LANGUAGE == "fr" %}
+				<a href="{% url 'switch_language' 'en' %}?next={{ request.get_full_path|urlencode }}" class="small text-muted">Switch to English</a>
+				{% else %}
+				<a href="{% url 'switch_language' 'fr' %}?next={{ request.get_full_path|urlencode }}" class="small text-muted">Passer en Français</a>
+				{% endif %}
+				{% endblock %}
 			</div>
+			<h1>
+				{% block page_heading %}{{ title|default:default_title }}{% endblock %}
+				{% block page_subheading %}{% endblock %}
+			</h1>
 		</header>
+		{% with current_url_name=request.resolver_match.url_name %}
+		<nav class="navbar navbar-inverse" role="navigation">
+			<div class="container-fluid">
+				<ul class="nav navbar-nav">
+					<li{% if current_url_name == 'home' %} class="active"{% endif %}>
+						<a href="{% url 'home' %}">{% trans "Home" %}</a>
+					</li>
+					<li{% if current_url_name == 'articles' or current_url_name == 'article' %} class="active"{% endif %}>
+						<a href="{% url 'articles' %}">{% trans "Articles" %}</a>
+					</li>
+					{% if user.is_authenticated %}
+					<li{% if current_url_name == 'favorites' %} class="active"{% endif %}>
+						<a href="{% url 'favorites' %}">{% trans "Favorites" %}</a>
+					</li>
+					<li{% if current_url_name == 'publications' or current_url_name == 'publication' %} class="active"{% endif %}>
+						<a href="{% url 'publications' %}">{% trans "Publications" %}</a>
+					</li>
+					{% else %}
+					<li{% if current_url_name == 'register' %} class="active"{% endif %}>
+						<a href="{% url 'register' %}">{% trans "Register" %}</a>
+					</li>
+					{% endif %}
+				</ul>
+				{% if user.is_authenticated %}
+				<form class="navbar-form navbar-right" method="post" action="{% url 'logout' %}">
+					{% csrf_token %}
+					<button type="submit" class="btn btn-link navbar-btn">{% trans "Logout" %}</button>
+				</form>
+				<p class="navbar-text navbar-right">{% blocktrans with username=user.username %}Logged as {{ username }}{% endblocktrans %}</p>
+				{% elif current_url_name != 'login' and login_form %}
+				<form class="navbar-form navbar-right" method="post" action="{% url 'login' %}">
+					{% csrf_token %}
+					<div class="form-group">
+						{{ login_form.username }}
+					</div>
+					<div class="form-group">
+						{{ login_form.password }}
+					</div>
+					<button type="submit" class="btn btn-default">{% trans "Login" %}</button>
+				</form>
+				{% endif %}
+			</div>
+		</nav>
+		{% endwith %}
 		{% block content %}{% endblock %}
 	</div>
 </body>
-
 </html>

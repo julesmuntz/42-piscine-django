@@ -1,5 +1,6 @@
 from django import forms
-
+from django.contrib.auth.forms import AuthenticationForm
+from django.utils.translation import gettext_lazy as _
 from .models import Article, User, UserFavoriteArticle
 
 
@@ -10,37 +11,90 @@ class ArticleForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(
                 attrs={
-                    "placeholder": "Title",
+                    "class": "form-control",
+                    "placeholder": _("Title"),
                     "required": True,
                 }
             ),
             "synopsis": forms.Textarea(
                 attrs={
-                    "placeholder": "Synopsis",
+                    "class": "form-control",
+                    "placeholder": _("Synopsis"),
                     "required": True,
+                    "rows": 3,
                 }
             ),
             "content": forms.Textarea(
                 attrs={
-                    "placeholder": "Content",
+                    "class": "form-control",
+                    "placeholder": _("Content"),
                     "required": True,
+                    "rows": 8,
                 }
             )
         }
 
 
-class RegisterForm(forms.ModelForm):
-    username = forms.CharField(error_messages={"required": "Username is required"})
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Username"),
+                "autocomplete": "username",
+                "required": True,
+            }
+        )
+    )
     password = forms.CharField(
         strip=False,
-        error_messages={"required": "Password is required"},
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Password"),
+                "autocomplete": "current-password",
+                "required": True,
+            }
+        ),
+    )
+
+
+class RegisterForm(forms.ModelForm):
+    username = forms.CharField(
+        error_messages={"required": _("Username is required")},
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Username"),
+                "autocomplete": "username",
+                "required": True,
+            }
+        ),
+    )
+    password = forms.CharField(
+        strip=False,
+        error_messages={"required": _("Password is required")},
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Password"),
+                "autocomplete": "new-password",
+                "required": True,
+            }
+        ),
     )
     password_confirm = forms.CharField(
         strip=False,
-        label="Confirm password",
-        error_messages={"required": "Password confirmation is required"},
-        widget=forms.PasswordInput(attrs={"autocomplete": "new-password"}),
+        label=_("Confirm password"),
+        error_messages={"required": _("Password confirmation is required")},
+        widget=forms.PasswordInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": _("Confirm password"),
+                "autocomplete": "new-password",
+                "required": True,
+            }
+        ),
     )
 
     class Meta:
@@ -50,7 +104,7 @@ class RegisterForm(forms.ModelForm):
     def clean_username(self):
         username = self.cleaned_data["username"]
         if User.objects.filter(username=username).exists():
-            raise forms.ValidationError("User already exists")
+            raise forms.ValidationError(_("User already exists"))
         return username
 
     def clean(self):
@@ -58,7 +112,7 @@ class RegisterForm(forms.ModelForm):
         password = cleaned_data.get("password")
         password_confirm = cleaned_data.get("password_confirm")
         if password and password_confirm and password != password_confirm:
-            self.add_error("password_confirm", "Passwords do not match")
+            self.add_error("password_confirm", _("Passwords do not match"))
         return cleaned_data
 
     def save(self, commit=True):

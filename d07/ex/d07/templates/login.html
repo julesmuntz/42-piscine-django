@@ -1,68 +1,52 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
 
-{% block parent_nav %}
-	{% if action == "Login" %}
-		<a href="{% url 'home' %}" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
-	{% elif action == "Register" %}
-		<a href="{% url 'login' %}" class="site-parent" title="Return to parent page" aria-label="Return to parent page">Return</a>
-	{% endif %}
-{% endblock %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block page_heading %}{{ title }} <small>{% trans "Access your account" %}</small>{% endblock %}
 
 {% block content %}
-<div class="auth-box">
-	<h1>{{ title }}</h1>
-	<form method="post" class="auth-stack">
-			{% csrf_token %}
-			<div class="auth-field">
-				<label for="auth-username">Username</label>
-				<input
-					id="auth-username"
-					type="text"
-					name="username"
-					autocomplete="username"
-					value="{{ username|default:'' }}"
-					required
-				/>
+<div class="row">
+	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<strong>{{ action }}</strong>
 			</div>
-			<div class="auth-field">
-				<label for="auth-password">Password</label>
-				<input
-					id="auth-password"
-					type="password"
-					name="password"
-					autocomplete="{% if action == 'Register' %}new-password{% else %}current-password{% endif %}"
-					required
-				/>
-			</div>
-			{% if action == "Register" %}
-				<div class="auth-field">
-					<label for="auth-password-confirm">Confirm password</label>
-					<input
-						id="auth-password-confirm"
-						type="password"
-						name="password_confirm"
-						autocomplete="new-password"
-						required
-					/>
-				</div>
-			{% endif %}
-			{% if message %}
-				<p class="auth-error">{{ message }}</p>
-			{% endif %}
-			<button type="submit" class="auth-submit">{{ action }}</button>
-		</form>
-		{% if action == "Login" or action == "Register" %}
-			<div class="nav-link-container auth-after">
-				{% if action == "Login" %}
-					<div class="nav-link">
-						<a href="{% url 'register' %}">Register</a>
+			<div class="panel-body">
+				<form method="post">
+					{% csrf_token %}
+					<div class="form-group{% if form.username.errors %} has-error{% endif %}">
+						<label for="{{ form.username.id_for_label }}">{% trans "Username" %}</label>
+						{{ form.username }}
+						{% for error in form.username.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
 					</div>
-				{% elif action == "Register" %}
-					<div class="nav-link">
-						<a href="{% url 'login' %}">Login</a>
+					<div class="form-group{% if form.password.errors %} has-error{% endif %}">
+						<label for="{{ form.password.id_for_label }}">{% trans "Password" %}</label>
+						{{ form.password }}
+						{% for error in form.password.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
 					</div>
-				{% endif %}
+					{% if show_password_confirm %}
+					<div class="form-group{% if form.password_confirm.errors %} has-error{% endif %}">
+						<label for="{{ form.password_confirm.id_for_label }}">{% trans "Confirm password" %}</label>
+						{{ form.password_confirm }}
+						{% for error in form.password_confirm.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
+					</div>
+					{% endif %}
+					{% if message %}
+					<div class="alert alert-danger" role="alert">{{ message }}</div>
+					{% endif %}
+					<div class="clearfix">
+						<button type="submit" class="btn btn-primary pull-right">{{ action }}</button>
+					</div>
+				</form>
 			</div>
-		{% endif %}
+		</div>
+	</div>
 </div>
 {% endblock %}

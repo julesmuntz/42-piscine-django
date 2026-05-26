@@ -1,4 +1,4 @@
-.PHONY: all venv install run runserver makemigrations migrate superuser shell reset-db db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
+.PHONY: all venv install run runserver test makemigrations migrate superuser shell reset-db db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
 
 all: db-start run
 
@@ -52,6 +52,9 @@ run: db-start wait-db
 
 runserver: db-start wait-db install
 	. venv/bin/activate && python3 manage.py runserver
+
+test: db-start wait-db install
+	. venv/bin/activate && python3 manage.py test
 
 makemigrations: db-start wait-db install
 	. venv/bin/activate && python3 manage.py makemigrations

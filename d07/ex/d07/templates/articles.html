@@ -1,48 +1,43 @@
 {% extends 'd07/templates/base.html' %}
+{% load i18n %}
 
-{% block header %}
-{% endblock %}
+{% block title %}{% trans "Articles" %}{% endblock %}
 
-{% block parent_nav %}
-<span class="site-parent-spacer" aria-hidden="true"></span>
-{% endblock %}
+{% block page_heading %}{% trans "Articles" %} <small>{% trans "Share your writings" %}</small>{% endblock %}
 
 {% block content %}
-<nav class="nav-link-container" role="navigation">
-    {% if not logged_in %}
-    <div class="nav-link">
-        <a href="{% url 'login' %}">Login</a>
-    </div>
-    {% else %}
-    <div class="nav-link">
-        <a href="{% url 'publications' %}">Publications</a>
-    </div>
-    <div class="nav-link">
-        <a href="{% url 'favorites' %}">Favorites</a>
-    </div>
-    <div class="nav-link">
-        <form method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button type="submit">Logout</button>
-        </form>
-    </div>
-    {% endif %}
-</nav>
-<section class="article-list" aria-label="Articles list">
-    {% for article in articles %}
-    <article class="article-card">
-        <div class="article-body">
-            <h2 class="article-title">
-                <a href="{% url 'article' article.pk %}">{{ article.title }}</a>
-            </h2>
-            <p class="article-synopsis">{{ article.synopsis }}</p>
-            <p class="article-meta">posted by <span class="article-author">{{ article.author.username }}</span> | <span
-                    class="article-date">{{ article.created }}</span></p>
-        </div>
-    </article>
-    {% empty %}
-    <p class="article-meta">No articles yet.</p>
-    {% endfor %}
-</section>
-
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Synopsis" %}</th>
+                <th>{% trans "Writer" %}</th>
+                <th>{% trans "Created" %}</th>
+                <th>{% trans "When" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr
+                data-href="{% url 'article' article.pk %}"
+                onclick="window.location=this.dataset.href;"
+                onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location=this.dataset.href; }"
+                tabindex="0"
+                style="cursor: pointer;"
+            >
+                <td>{{ article.title }}</td>
+                <td>{{ article.synopsis|truncatechars:20 }}</td>
+                <td>{{ article.author.username }}</td>
+                <td>{{ article.created|date:"M. j, Y, P" }}</td>
+                <td>{% blocktrans with time_since=article.created|timesince %}{{ time_since }} ago{% endblocktrans %}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-muted">{% trans "No articles yet." %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
