@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{% block title %}{{ title|default:default_title }}{% endblock %}</title>
+	<link
+		rel="stylesheet"
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+	/>
+	<style>
+		html,
+		body,
+		* {
+			scrollbar-width: none;
+			-ms-overflow-style: none;
+		}
+
+		*::-webkit-scrollbar {
+			display: none;
+		}
+	</style>
+	{% block header %}{% endblock %}
+</head>
+<body>
+	<div class="container">
+		{% with current_url_name=request.resolver_match.url_name %}
+		<nav class="navbar navbar-inverse" role="navigation">
+			<div class="container-fluid">
+				<ul class="nav navbar-nav">
+					<li{% if current_url_name == 'account' %} class="active"{% endif %}>
+						<a href="{% url 'account' %}">Account</a>
+					</li>
+                    <li{% if current_url_name == 'chat' %} class="active"{% endif %}>
+                        <a href="{% url 'chat' %}">Chat</a>
+                    </li>
+				</ul>
+                {% if user.is_authenticated %}
+                <form class="navbar-right" method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-link navbar-btn">Logout</button>
+                </form>
+                {% endif %}
+			</div>
+		</nav>
+		{% endwith %}
+		{% block content %}{% endblock %}
+	</div>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
+    {% block javascript %}{% endblock %}
+</body>
+</html>
