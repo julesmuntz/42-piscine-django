@@ -1,4 +1,4 @@
-.PHONY: all venv install run runserver test makemigrations migrate superuser shell reset-db db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
+.PHONY: all venv install run runserver test makemigrations migrate populate-chatrooms superuser shell reset-db db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
 
 all: db-start run
 
@@ -37,6 +37,7 @@ run: db-start wait-db
 		python3 -m pip install -r requirements.txt && \
 		python3 manage.py makemigrations && \
 		python3 manage.py migrate && \
+		python3 manage.py create_chatrooms && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	else \
@@ -46,6 +47,7 @@ run: db-start wait-db
 		python3 -m pip install -r requirements.txt && \
 		python3 manage.py makemigrations && \
 		python3 manage.py migrate && \
+		python3 manage.py create_chatrooms && \
 		python3 manage.py collectstatic --noinput --clear -v=0 && \
 		python3 manage.py runserver; \
 	fi
@@ -53,6 +55,7 @@ run: db-start wait-db
 runserver: db-start wait-db install
 	. venv/bin/activate && \
 	python3 manage.py migrate && \
+	python3 manage.py create_chatrooms && \
 	python3 manage.py runserver
 
 test: db-start wait-db install
@@ -61,8 +64,11 @@ test: db-start wait-db install
 makemigrations: db-start wait-db install
 	. venv/bin/activate && python3 manage.py makemigrations
 
+populate-chatrooms: db-start wait-db install
+	. venv/bin/activate && python3 manage.py create_chatrooms
+
 migrate: db-start wait-db install
-	. venv/bin/activate && python3 manage.py migrate
+	. venv/bin/activate && python3 manage.py migrate && python3 manage.py create_chatrooms
 
 superuser: db-start wait-db install
 	. venv/bin/activate && python3 manage.py createsuperuser

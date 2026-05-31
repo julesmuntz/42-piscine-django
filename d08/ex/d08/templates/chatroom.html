@@ -1,0 +1,419 @@
+{% extends 'd08/templates/base.html' %}
+
+{% block title %}{{ chatroom.name }}{% endblock %}
+
+{% block header %}
+<style>
+	.chat-panel {
+		max-width: 720px;
+		margin: 0 auto;
+	}
+
+	.chat-panel .panel {
+		border-radius: 24px;
+		overflow: hidden;
+	}
+
+	.chat-messages {
+		height: 400px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		scrollbar-gutter: stable;
+		padding: 12px;
+		background: #f5f5f7;
+	}
+
+	.chat-messages .list-group {
+		margin-bottom: 0;
+		padding: 0;
+	}
+
+	.chat-message-item {
+		display: flex;
+		flex-direction: column;
+		margin-bottom: 10px;
+		border: none;
+		background: transparent;
+		padding: 0;
+	}
+
+	.chat-message-item:last-child {
+		margin-bottom: 0;
+	}
+
+	.chat-message-item.chat-outgoing {
+		align-items: flex-end;
+	}
+
+	.chat-message-item.chat-incoming {
+		align-items: flex-start;
+	}
+
+	.chat-bubble {
+		max-width: 78%;
+		padding: 10px 14px;
+		border-radius: 18px;
+		line-height: 1.35;
+		word-break: break-word;
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+		transition: background 140ms linear;
+	}
+
+	.chat-outgoing .chat-bubble {
+		background: #0a84ff;
+		color: #fff;
+		border-bottom-right-radius: 5px;
+	}
+
+	.chat-incoming .chat-bubble {
+		background: #e9e9eb;
+		color: #1c1c1e;
+		border-bottom-left-radius: 5px;
+	}
+
+	.chat-message-meta {
+		margin-top: 4px;
+		font-size: 11px;
+		color: #777;
+	}
+
+	.chat-outgoing .chat-message-meta {
+		text-align: right;
+	}
+
+	.chat-incoming .chat-message-meta {
+		text-align: left;
+	}
+
+	.chat-message-text {
+		margin: 0;
+		font-size: 14px;
+	}
+
+	.chat-system-event {
+		background-color: transparent;
+		color: #6d6d72;
+		font-style: italic;
+		text-align: center;
+		font-size: 13px;
+		padding: 4px 0;
+		margin: 8px 0;
+		border: none;
+	}
+
+	.chat-system-event .list-group-item-text {
+		margin: 0;
+	}
+
+	.chat-members {
+		margin-bottom: 10px;
+		font-size: 12px;
+		color: #666;
+	}
+
+	.chat-members-list {
+		display: inline-flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 6px;
+	}
+
+	.chat-members .badge {
+		margin: 0;
+		background-color: #bbb;
+	}
+
+	.chat-composer {
+		background: #fff;
+		border: 1px solid #d1d1d6;
+		border-radius: 24px;
+		padding: 6px 8px 6px 12px;
+		display: flex;
+		align-items: flex-end;
+		gap: 8px;
+	}
+
+	.chat-input {
+		border: none;
+		box-shadow: none;
+		resize: none;
+		padding: 8px 0;
+		min-height: 20px;
+		max-height: 96px;
+		line-height: 1.35;
+		background: transparent;
+	}
+
+	.chat-input:focus {
+		outline: none;
+		box-shadow: none;
+	}
+
+	.chat-send-btn {
+		width: 46px;
+		height: 32px;
+		border: none;
+		border-radius: 999px;
+		background: #0a84ff;
+		color: #fff;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+		padding: 0;
+		flex: 0 0 46px;
+	}
+
+	.chat-send-icon {
+		display: block;
+		width: 16px;
+		height: 16px;
+		fill: #fff;
+		transform: translateY(-1px);
+	}
+
+	.chat-send-btn:hover,
+	.chat-send-btn:focus {
+		background: #0070f0;
+		color: #fff;
+	}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-panel">
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h3 style="text-align: center;" class="panel-title">{{ chatroom.name }}</h3>
+			<div style="text-align: center;" class="chat-members">
+				<span id="chat-members-list" class="chat-members-list">
+					{% spaceless %}
+					{% for member in chatroom.members.all %}
+					<span class="badge">{{ member.username }}</span>
+					{% empty %}
+					<span class="text-muted">No members yet</span>
+					{% endfor %}
+					{% endspaceless %}
+				</span>
+			</div>
+		</div>
+		<div class="panel-body chat-messages" id="messages">
+			<ul class="list-group" id="message-list">
+				{% for message in recent_messages %}
+				{% if message.content == message.user.username|add:" has joined the chat" or message.content == message.user.username|add:" has left the chat" %}
+				<li class="list-group-item chat-system-event">
+					<p class="list-group-item-text">{{ message.content }}</p>
+				</li>
+				{% else %}
+				<li class="list-group-item chat-message-item {% if message.user_id == user.id %}chat-outgoing{% else %}chat-incoming{% endif %}">
+					<div class="chat-bubble">
+						<p class="chat-message-text">{{ message.content }}</p>
+					</div>
+					<div class="chat-message-meta">
+						<strong>{{ message.user.username }}</strong> {{ message.sent_at|date:"H:i" }}
+					</div>
+				</li>
+				{% endif %}
+				{% empty %}
+				<li class="list-group-item text-muted text-center" id="empty-state">No messages yet.</li>
+				{% endfor %}
+			</ul>
+		</div>
+		<div class="panel-footer">
+			<form id="chat-form">
+				<div class="chat-composer">
+					<textarea
+						class="form-control chat-input"
+						id="message-input"
+						name="content"
+						rows="1"
+						placeholder="Message"
+						required
+					></textarea>
+					<button type="submit" class="chat-send-btn" aria-label="Send message">
+						<svg class="chat-send-icon" viewBox="0 0 492 492" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+							<g>
+								<g>
+									<path d="M442.627,185.388L265.083,7.844C260.019,2.78,253.263,0,245.915,0c-7.204,0-13.956,2.78-19.02,7.844L49.347,185.388 c-10.488,10.492-10.488,27.568,0,38.052l16.12,16.128c5.064,5.06,11.82,7.844,19.028,7.844c7.204,0,14.192-2.784,19.252-7.844 l103.808-103.584v329.084c0,14.832,11.616,26.932,26.448,26.932h22.8c14.832,0,27.624-12.1,27.624-26.932V134.816l104.396,104.752 c5.06,5.06,11.636,7.844,18.844,7.844s13.864-2.784,18.932-7.844l16.072-16.128C453.163,212.952,453.123,195.88,442.627,185.388z"/>
+								</g>
+							</g>
+						</svg>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+	$(function () {
+		var $messages = $("#messages");
+		var $messageList = $("#message-list");
+		var $messageInput = $("#message-input");
+		var $membersList = $("#chat-members-list");
+		var currentUsername = "{{ user.username|escapejs }}";
+		var roomId = "{{ chatroom.pk }}";
+		var scheme = window.location.protocol === "https:" ? "wss" : "ws";
+		var socket = new WebSocket(
+			scheme + "://" + window.location.host + "/ws/chatroom/" + roomId + "/"
+		);
+
+		function scrollToBottom() {
+			$messages.scrollTop($messages[0].scrollHeight);
+		}
+
+		function clamp(value, min, max) {
+			return Math.max(min, Math.min(max, value));
+		}
+
+		function updateOutgoingBubbleGradient() {
+			var container = $messages[0];
+			if (!container) {
+				return;
+			}
+
+			var containerRect = container.getBoundingClientRect();
+			var containerHeight = Math.max(containerRect.height, 1);
+			$messageList.find(".chat-outgoing .chat-bubble").each(function () {
+				var bubbleRect = this.getBoundingClientRect();
+				var centerY = (bubbleRect.top + bubbleRect.bottom) / 2;
+				var ratio = clamp((centerY - containerRect.top) / containerHeight, 0, 1);
+				var lightness = 72 - ratio * 20;
+				var highlight = Math.min(88, lightness + 10);
+				this.style.background =
+					"linear-gradient(180deg, hsl(211, 100%, " +
+					highlight +
+					"%), hsl(211, 100%, " +
+					lightness +
+					"%))";
+			});
+		}
+
+		function resizeComposerInput() {
+			var input = $messageInput[0];
+			input.style.height = "auto";
+			input.style.height = Math.min(input.scrollHeight, 96) + "px";
+		}
+
+		function appendMessage(username, sentAt, content, messageType, shouldScroll) {
+			$("#empty-state").remove();
+			if (typeof shouldScroll === "undefined") {
+				shouldScroll = true;
+			}
+
+			var $item = $("<li>").addClass("list-group-item");
+			if (messageType === "system") {
+				$item.addClass("chat-system-event");
+				$item.append($("<p>").addClass("list-group-item-text").text(content));
+			} else {
+				var itemClass =
+					username === currentUsername
+						? "chat-message-item chat-outgoing"
+						: "chat-message-item chat-incoming";
+				$item.addClass(itemClass);
+				$item.append(
+					$("<div>")
+						.addClass("chat-bubble")
+						.append(
+							$("<p>")
+								.addClass("chat-message-text")
+								.text(content)
+						)
+				);
+				$item.append(
+					$("<div>")
+						.addClass("chat-message-meta")
+						.append($("<strong>").text(username))
+						.append(document.createTextNode(" " + sentAt))
+				);
+			}
+
+			$messageList.append($item);
+			if (shouldScroll) {
+				scrollToBottom();
+			}
+			updateOutgoingBubbleGradient();
+		}
+
+		function renderRecentMessages(messages) {
+			$messageList.empty();
+			if (!messages || messages.length === 0) {
+				$messageList.append(
+					$("<li>")
+						.addClass("list-group-item text-muted text-center")
+						.attr("id", "empty-state")
+						.text("No messages yet.")
+				);
+				return;
+			}
+
+			$.each(messages, function (_, message) {
+				appendMessage(
+					message.username,
+					message.sent_at,
+					message.message,
+					message.message_type,
+					false
+				);
+			});
+			scrollToBottom();
+			updateOutgoingBubbleGradient();
+		}
+
+		function renderMembers(members) {
+			$membersList.empty();
+			if (!members || members.length === 0) {
+				$membersList.append(
+					$("<span>").addClass("text-muted").text("No members yet")
+				);
+				return;
+			}
+
+			$.each(members, function (_, username) {
+				$membersList.append($("<span>").addClass("badge").text(username));
+			});
+		}
+
+		socket.onmessage = function (event) {
+			var data = JSON.parse(event.data);
+			if (data.event_type === "recent_messages") {
+				renderRecentMessages(data.messages);
+				return;
+			}
+
+			if (data.event_type === "members_update") {
+				renderMembers(data.members);
+				return;
+			}
+
+			appendMessage(data.username, data.sent_at, data.message, data.message_type);
+		};
+
+		$("#chat-form").on("submit", function (event) {
+			event.preventDefault();
+
+			var content = ($messageInput.val() || "").trim();
+			if (!content || socket.readyState !== WebSocket.OPEN) {
+				return;
+			}
+
+			socket.send(JSON.stringify({ message: content }));
+			$messageInput.val("").focus();
+			resizeComposerInput();
+		});
+
+		$messageInput.on("input", function () {
+			resizeComposerInput();
+		});
+
+		$messages.on("scroll", updateOutgoingBubbleGradient);
+		$(window).on("resize", updateOutgoingBubbleGradient);
+		resizeComposerInput();
+		scrollToBottom();
+		updateOutgoingBubbleGradient();
+	});
+</script>
+{% endblock %}

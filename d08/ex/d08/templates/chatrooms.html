@@ -1,0 +1,74 @@
+{% extends 'd08/templates/base.html' %}
+
+{% block title %}Chat{% endblock %}
+
+{% block header %}
+<style>
+	.chatrooms-panel {
+		max-width: 720px;
+		margin: 0 auto;
+		border: 1px solid rgba(60, 60, 67, 0.16);
+		border-radius: 24px;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.92);
+		box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+	}
+
+	.chatrooms-panel .panel-heading {
+		background: transparent;
+		border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+		padding: 14px 18px;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	.chatrooms-panel .list-group {
+		margin-bottom: 0;
+	}
+
+	.chatrooms-panel .list-group-item {
+		border-left: none;
+		border-right: none;
+		border-color: rgba(60, 60, 67, 0.12);
+		padding: 0;
+	}
+
+	.chatrooms-panel .list-group-item:first-child {
+		border-top: none;
+	}
+
+	.chatrooms-panel .list-group-item:last-child {
+		border-bottom: none;
+	}
+
+	.chatroom-link {
+		display: block;
+		padding: 14px 18px;
+		color: #007aff;
+		font-weight: 600;
+		text-decoration: none;
+	}
+
+	.chatroom-link:hover,
+	.chatroom-link:focus {
+		background: rgba(0, 122, 255, 0.12);
+		color: #007aff;
+		text-decoration: none;
+	}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="panel panel-default chatrooms-panel">
+	<div class="panel-heading">Chatrooms</div>
+	<ul class="list-group">
+		{% for chatroom in chatrooms %}
+		<li class="list-group-item">
+			<a class="chatroom-link" href="{% url 'chatroom' chatroom.pk %}">{{ chatroom.name }}</a>
+		</li>
+		{% empty %}
+		<li class="list-group-item text-muted text-center" style="padding: 14px 18px;">No chatrooms available.</li>
+		{% endfor %}
+	</ul>
+</div>
+{% endblock %}

@@ -4,6 +4,105 @@
 
 {% block page_heading %}{{ title }} <small>Access your account</small>{% endblock %}
 
+{% block header %}
+<style>
+	.auth-panel {
+		border: 1px solid rgba(60, 60, 67, 0.16);
+		border-radius: 24px;
+		overflow: hidden;
+		background: rgba(255, 255, 255, 0.92);
+		box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+	}
+
+	.auth-panel .panel-heading {
+		background: transparent;
+		border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+		color: #1c1c1e;
+		font-size: 16px;
+		font-weight: 600;
+		padding: 14px 18px;
+	}
+
+	.auth-panel .panel-body {
+		padding: 18px;
+	}
+
+	.auth-panel .form-control {
+		height: 40px;
+		border-radius: 12px;
+		border: 1px solid #d1d1d6;
+		box-shadow: none;
+	}
+
+	.auth-panel .form-control:focus {
+		border-color: #007aff;
+		box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+	}
+
+	.auth-panel .btn-primary {
+		background: #007aff;
+		border-color: #007aff;
+		border-radius: 999px;
+		padding: 8px 16px;
+		font-weight: 600;
+	}
+
+	.auth-panel .btn-primary:hover,
+	.auth-panel .btn-primary:focus {
+		background: #006be0;
+		border-color: #006be0;
+	}
+
+	.auth-panel .panel-footer {
+		background: transparent;
+		border-top: 1px solid rgba(60, 60, 67, 0.12);
+	}
+
+	.auth-panel .panel-footer a {
+		display: inline-block;
+		padding: 6px 10px;
+		border-radius: 999px;
+		color: #007aff;
+		font-weight: 500;
+	}
+
+	.auth-panel .panel-footer a:hover {
+		background: rgba(0, 122, 255, 0.12);
+		text-decoration: none;
+	}
+
+	.auth-panel .panel-footer a:focus,
+	.auth-panel .panel-footer a:focus-visible {
+		outline: none;
+		box-shadow: none;
+		background: rgba(0, 122, 255, 0.16);
+		text-decoration: none;
+	}
+
+	.auth-panel .has-error .control-label,
+	.auth-panel .has-error label,
+	.auth-panel .has-error .help-block,
+	.auth-panel .help-block {
+		color: #ff3b30;
+	}
+
+	.auth-panel .has-error .form-control {
+		border-color: #ff3b30;
+	}
+
+	.auth-panel .has-error .form-control:focus {
+		border-color: #ff3b30;
+		box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.18);
+	}
+
+	.auth-panel .alert-danger {
+		background: rgba(255, 59, 48, 0.12);
+		border-color: rgba(255, 59, 48, 0.28);
+		color: #ff3b30;
+	}
+</style>
+{% endblock %}
+
 {% block javascript %}
 <script>
     (function () {
@@ -139,7 +238,7 @@
 {% block content %}
 <div class="row">
     <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        <div class="panel panel-default">
+        <div class="panel panel-default auth-panel">
             <div class="panel-heading">
                 <strong>{{ action }}</strong>
             </div>
