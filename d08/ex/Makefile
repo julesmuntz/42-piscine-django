@@ -1,6 +1,6 @@
-.PHONY: all venv install run runserver test makemigrations migrate populate-chatrooms superuser shell reset-db db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-local clean
+.PHONY: all venv install run runserver test makemigrations migrate populate-chatrooms superuser shell reset-db nuke db-start db-stop db-status db-logs wait-db clean-cache clean-venv clean-static clean-migrations clean-local clean
 
-all: db-start run
+all: run
 
 venv:
 	if [ ! -d "venv" ]; then python3 -m venv venv; fi
@@ -30,27 +30,13 @@ wait-db:
 	done
 	@echo "PostgreSQL is ready."
 
-run: db-start wait-db
-	if [ -d "venv" ]; then \
-		. venv/bin/activate && \
-		python3 -m pip install --upgrade pip && \
-		python3 -m pip install -r requirements.txt && \
-		python3 manage.py makemigrations && \
-		python3 manage.py migrate && \
-		python3 manage.py create_chatrooms && \
-		python3 manage.py collectstatic --noinput --clear -v=0 && \
-		python3 manage.py runserver; \
-	else \
-		python3 -m venv venv && \
-		. venv/bin/activate && \
-		python3 -m pip install --upgrade pip && \
-		python3 -m pip install -r requirements.txt && \
-		python3 manage.py makemigrations && \
-		python3 manage.py migrate && \
-		python3 manage.py create_chatrooms && \
-		python3 manage.py collectstatic --noinput --clear -v=0 && \
-		python3 manage.py runserver; \
-	fi
+run: db-start wait-db install
+	. venv/bin/activate && \
+	python3 manage.py makemigrations && \
+	python3 manage.py migrate && \
+	python3 manage.py create_chatrooms && \
+	python3 manage.py collectstatic --noinput --clear -v=0 && \
+	python3 manage.py runserver
 
 runserver: db-start wait-db install
 	. venv/bin/activate && \
@@ -80,6 +66,13 @@ reset-db: db-stop
 	docker compose down -v
 	docker compose up -d
 	$(MAKE) migrate
+
+nuke:
+	docker compose down --volumes --remove-orphans --rmi local
+	$(MAKE) clean-cache
+	$(MAKE) clean-static
+	$(MAKE) clean-venv
+	$(MAKE) clean-migrations
 
 clean-cache:
 	find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true

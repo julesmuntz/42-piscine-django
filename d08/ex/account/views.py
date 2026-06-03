@@ -1,129 +1,107 @@
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy as rl
-from django.shortcuts import redirect
-from django.views.decorators.http import require_POST
-from django.views.generic import CreateView, TemplateView
-from .forms import LoginForm, RegisterForm
-from django.http import JsonResponse
+from django.contrib.auth import login, logout
 from django.contrib.auth.models import User
+from django.views import View
+from django.views.generic.base import TemplateResponseMixin
+
+from chat.message_history import get_preview_messages, get_recent_message_objects
+from chat.models import ChatRoom
+
+from .ajax import ajax_json_response, ajax_ok, is_ajax_request
+from .forms import LoginForm, RegisterForm
 
 
-class AccountView(LoginRequiredMixin, TemplateView):
+class AccountView(TemplateResponseMixin, View):
     template_name = "d08/templates/account.html"
-    login_url = rl("login")
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["title"] = "Account"
-        return context
-
-
-class AuthContextMixin:
-    template_name = "d08/templates/login.html"
-    page_title = ""
-    action = ""
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        form = context.get("form")
-        context["title"] = self.page_title
-        context["action"] = self.action
-        context["username"] = form["username"].value() if form else ""
-        context["message"] = self._get_error_message(form)
-        return context
-
-    def _get_error_message(self, form):
-        return ""
-
-
-class AjaxAuthMixin:
-    def _is_ajax(self):
-        return self.request.headers.get("X-Requested-With") == "XMLHttpRequest"
-
-    def form_valid(self, form):
-        if self._is_ajax():
-            return self._ajax_form_valid(form)
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        if self._is_ajax():
-            return JsonResponse(self._ajax_form_errors(form), status=400)
-        return super().form_invalid(form)
-
-
-class AuthRegisterView(AuthContextMixin, AjaxAuthMixin, CreateView):
-    form_class = RegisterForm
-    success_url = rl("account")
-    page_title = "Register"
-    action = "Register"
-
-    def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect("account")
-        return super().dispatch(request, *args, **kwargs)
-
-    def _ajax_form_valid(self, form):
-        self.object = form.save()
-        login(self.request, self.object)
-        return JsonResponse({"redirect": str(self.success_url)})
-
-    def _ajax_form_errors(self, form):
-        return {"errors": form.errors}
-
-class AuthLoginView(AuthContextMixin, AjaxAuthMixin, LoginView):
-    form_class = LoginForm
-    page_title = "Login"
-    action = "Login"
-    redirect_authenticated_user = True
-
-    def get_success_url(self):
-        return str(rl("account"))
-
-    def _ajax_form_valid(self, form):
-        login(self.request, form.get_user())
-        return JsonResponse({"redirect": self.get_success_url()})
-
-    def _ajax_form_errors(self, form):
-        username = self.request.POST.get("username", "")
-        password = self.request.POST.get("password", "")
-        username_exists = User.objects.filter(username__iexact=username).exists()
-        return {
-            "username_does_not_exist": bool(username) and not username_exists,
-            "invalid_password": username_exists and bool(username and password),
-        }
-
-
-class AuthLogoutView(LogoutView):
-    next_page = rl("account")
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return self.logout(request)
-        return super().post(request, *args, **kwargs)
+        action = request.POST.get("action")
+        handlers = {
+            "login": self._post_login,
+            "register": self._post_register,
+            "logout": self._post_logout,
+            "check_register": self._post_check_register,
+        }
+        handler = handlers.get(action)
+        if handler is None:
+            return ajax_json_response({"error": "Unknown action"}, status=400)
+        return handler(request)
 
-    def logout(self, request):
-        super().logout(request)
-        return JsonResponse({"redirect": str(self.next_page)})
+    def get_context_data(self, **kwargs):
+        request = self.request
+        return {
+            "login_form": LoginForm(prefix="login"),
+            "register_form": RegisterForm(prefix="register"),
+            **self._chat_context(request),
+        }
 
+    def _chat_context(self, request):
+        user = request.user
+        chatrooms = ChatRoom.objects.prefetch_related("members").all()
+        chatroom_payloads = []
+        for chatroom in chatrooms:
+            if user.is_authenticated and chatroom.members.filter(pk=user.pk).exists():
+                recent_messages = get_recent_message_objects(chatroom.pk, user.username)
+            else:
+                recent_messages = get_preview_messages(chatroom.pk)
+            chatroom_payloads.append({"chatroom": chatroom, "recent_messages": recent_messages})
+        return {
+            "chatrooms": chatrooms,
+            "chatroom_payloads": chatroom_payloads,
+        }
 
-@require_POST
-def check_register(request):
-    username = request.POST.get("username", "")
-    username_is_empty = not username
-    password = request.POST.get("password", "")
-    password_confirm = request.POST.get("password_confirm", "")
-    password_is_empty = not password
-    data = {
-        "username_is_empty": username_is_empty,
-        "username_is_taken": (
-            User.objects.filter(username__iexact=username).exists()
-            if not username_is_empty
-            else False
-        ),
-        "password_matches": (
-            password == password_confirm if not password_is_empty else False
-        ),
-    }
-    return JsonResponse(data)
+    def _post_login(self, request):
+        form = LoginForm(request, data=request.POST, prefix="login")
+        if form.is_valid():
+            login(request, form.get_user())
+            if is_ajax_request(request):
+                return ajax_ok({"username": request.user.username})
+            return self.render_to_response(self.get_context_data())
+        if is_ajax_request(request):
+            username = request.POST.get("login-username", "")
+            password = request.POST.get("login-password", "")
+            username_exists = User.objects.filter(username__iexact=username).exists()
+            return ajax_json_response(
+                {
+                    "username_does_not_exist": bool(username) and not username_exists,
+                    "invalid_password": username_exists and bool(username and password),
+                },
+                status=400,
+            )
+        return self.render_to_response(self.get_context_data())
+
+    def _post_register(self, request):
+        form = RegisterForm(request.POST, prefix="register")
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            if is_ajax_request(request):
+                return ajax_ok({"username": request.user.username})
+            return self.render_to_response(self.get_context_data())
+        if is_ajax_request(request):
+            return ajax_json_response({"errors": form.errors}, status=400)
+        return self.render_to_response(self.get_context_data())
+
+    def _post_logout(self, request):
+        logout(request)
+        if is_ajax_request(request):
+            return ajax_ok()
+        return self.render_to_response(self.get_context_data())
+
+    def _post_check_register(self, request):
+        username = request.POST.get("username", "") or request.POST.get("register-username", "")
+        password = request.POST.get("password", "") or request.POST.get("register-password", "")
+        password_confirm = request.POST.get("password_confirm", "") or request.POST.get("register-password_confirm", "")
+        username_is_empty = not username
+        password_is_empty = not password
+        return ajax_json_response(
+            {
+                "username_is_empty": username_is_empty,
+                "username_is_taken": (
+                    User.objects.filter(username__iexact=username).exists() if not username_is_empty else False
+                ),
+                "password_matches": (password == password_confirm if not password_is_empty else False),
+            }
+        )

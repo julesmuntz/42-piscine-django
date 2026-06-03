@@ -48,6 +48,10 @@
 			padding-top: 18px;
 		}
 
+		.app-section-hidden {
+			display: none !important;
+		}
+
 		.ios-navbar {
 			margin-bottom: 18px;
 			border: 1px solid rgba(60, 60, 67, 0.16);
@@ -167,39 +171,38 @@
 		}
 	</style>
 	{% block header %}{% endblock %}
+	<script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
 </head>
 <body>
 	<div class="container app-shell">
 		{% with current_url_name=request.resolver_match.url_name %}
 		<nav class="navbar ios-navbar" role="navigation">
 			<div class="container-fluid">
-				<ul class="nav navbar-nav">
+				<ul id="nav-main" class="nav navbar-nav">
 					<li{% if current_url_name == 'account' %} class="active"{% endif %}>
-						<a href="{% url 'account' %}">Account</a>
+						<a href="{% url 'account' %}" data-app-view="account">Account</a>
 					</li>
-                    <li{% if current_url_name == 'chatrooms' %} class="active"{% endif %}>
-                        <a href="{% url 'chatrooms' %}">Chat</a>
-                    </li>
-				</ul>
-                {% if user.is_authenticated %}
-				<ul class="nav navbar-nav navbar-right">
-                    <li>
-                        <span class="ios-nav-text">{{ user.username }}</span>
-                    </li>
 					<li>
-						<form method="post" action="{% url 'logout' %}">
+						<a href="{% url 'account' %}" data-app-view="chatrooms">Chat</a>
+					</li>
+				</ul>
+				<ul id="nav-user" class="nav navbar-nav navbar-right{% if not user.is_authenticated %} app-section-hidden{% endif %}">
+					<li>
+						<span id="nav-username" class="ios-nav-text">{{ user.username }}</span>
+					</li>
+					<li>
+						<form id="logout-form" method="post" action="{% url 'account' %}">
 							{% csrf_token %}
+							<input type="hidden" name="action" value="logout" />
 							<button type="submit" class="ios-nav-btn ios-nav-btn-danger">Logout</button>
 						</form>
 					</li>
 				</ul>
-                {% endif %}
 			</div>
 		</nav>
 		{% endwith %}
 		{% block content %}{% endblock %}
 	</div>
-    <script src="https://code.jquery.com/jquery-4.0.0.min.js"></script>
-    {% block javascript %}{% endblock %}
+	{% block javascript %}{% endblock %}
 </body>
 </html>

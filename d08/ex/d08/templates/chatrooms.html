@@ -1,8 +1,3 @@
-{% extends 'd08/templates/base.html' %}
-
-{% block title %}Chat{% endblock %}
-
-{% block header %}
 <style>
 	.chatrooms-panel {
 		max-width: 720px;
@@ -56,19 +51,19 @@
 		text-decoration: none;
 	}
 </style>
-{% endblock %}
-
-{% block content %}
 <div class="panel panel-default chatrooms-panel">
 	<div class="panel-heading">Chatrooms</div>
 	<ul class="list-group">
 		{% for chatroom in chatrooms %}
 		<li class="list-group-item">
-			<a class="chatroom-link" href="{% url 'chatroom' chatroom.pk %}">{{ chatroom.name }}</a>
+			<a
+				class="chatroom-link"
+				href="#"
+				data-room-id="{{ chatroom.pk }}"
+			>{{ chatroom.name }}</a>
 		</li>
 		{% empty %}
 		<li class="list-group-item text-muted text-center" style="padding: 14px 18px;">No chatrooms available.</li>
 		{% endfor %}
 	</ul>
 </div>
-{% endblock %}

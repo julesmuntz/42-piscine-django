@@ -2,6 +2,175 @@
 
 {% block title %}Account{% endblock %}
 
+{% block header %}
+<style>
+	.app-view {
+		display: none;
+	}
+
+	.app-view.is-active {
+		display: block;
+	}
+
+	.app-section-hidden {
+		display: none !important;
+	}
+</style>
+{% endblock %}
+
 {% block content %}
-<p>Logged as <strong>{{ user.username }}</strong></p>
+<script>window.onAccount = {{ user.is_authenticated|yesno:"true,false" }};</script>
+
+<div id="app-authenticated" class="app-section{% if not user.is_authenticated %} app-section-hidden{% endif %}">
+	<div id="view-account" class="app-view{% if user.is_authenticated %} is-active{% endif %}">
+		<p>Logged as <strong id="account-username">{{ user.username }}</strong></p>
+	</div>
+
+	<div id="view-chatrooms" class="app-view">
+		{% include 'd08/templates/chatrooms.html' %}
+	</div>
+
+	{% for payload in chatroom_payloads %}
+	<div id="view-chatroom-{{ payload.chatroom.pk }}" class="app-view">
+		{% include 'd08/templates/chatroom.html' with chatroom=payload.chatroom recent_messages=payload.recent_messages %}
+	</div>
+	{% endfor %}
+</div>
+
+<div id="app-anonymous" class="app-section{% if user.is_authenticated %} app-section-hidden{% endif %}">
+	<div id="view-login" class="app-view{% if not user.is_authenticated %} is-active{% endif %}">
+		{% include 'd08/templates/login.html' with form=login_form action='Login' auth_mode='login' %}
+	</div>
+
+	<div id="view-register" class="app-view">
+		{% include 'd08/templates/login.html' with form=register_form action='Register' auth_mode='register' %}
+	</div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script>
+	$(function () {
+		var activeRoomId = null;
+		var $authSection = $("#app-authenticated");
+		var $anonSection = $("#app-anonymous");
+		var $navMain = $("#nav-main");
+		var $navUser = $("#nav-user");
+
+		function syncCsrfInputs() {
+			var match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+			if (!match) {
+				return;
+			}
+			var token = decodeURIComponent(match[1]);
+			$("input[name=csrfmiddlewaretoken]").val(token);
+		}
+
+		window.syncCsrfInputs = syncCsrfInputs;
+
+		function teardownActiveRoom() {
+			if (
+				activeRoomId &&
+				window.chatroomControllers &&
+				window.chatroomControllers[activeRoomId]
+			) {
+				window.chatroomControllers[activeRoomId].teardown();
+			}
+			activeRoomId = null;
+		}
+
+		function setActiveNav(viewName) {
+			$navMain.find("> li").removeClass("active");
+			if (!window.onAccount) {
+				if (viewName === "login") {
+					$navMain.find('[data-app-view="account"]').closest("li").addClass("active");
+				}
+				return;
+			}
+			if (viewName === "account") {
+				$navMain.find('[data-app-view="account"]').closest("li").addClass("active");
+			} else if (viewName === "chatrooms" || viewName === "chatroom") {
+				$navMain.find('[data-app-view="chatrooms"]').closest("li").addClass("active");
+			}
+		}
+
+		function showView(viewName, roomId) {
+			if (viewName === "login" || viewName === "register") {
+				$anonSection.find(".app-view").removeClass("is-active");
+				$("#view-" + viewName).addClass("is-active");
+				return;
+			}
+
+			$authSection.find(".app-view").removeClass("is-active");
+			teardownActiveRoom();
+
+			if (viewName === "account") {
+				$("#view-account").addClass("is-active");
+			} else if (viewName === "chatrooms") {
+				$("#view-chatrooms").addClass("is-active");
+			} else if (viewName === "chatroom" && roomId) {
+				$("#view-chatroom-" + roomId).addClass("is-active");
+				activeRoomId = roomId;
+				if (
+					window.chatroomControllers &&
+					window.chatroomControllers[roomId]
+				) {
+					window.chatroomControllers[roomId].setup();
+				}
+			}
+			setActiveNav(viewName);
+		}
+
+		window.switchToAuthenticated = function (username) {
+			syncCsrfInputs();
+			window.onAccount = true;
+			$anonSection.addClass("app-section-hidden");
+			$authSection.removeClass("app-section-hidden");
+			$navUser.removeClass("app-section-hidden");
+			$("#account-username").text(username);
+			$("#nav-username").text(username);
+			showView("account");
+		};
+
+		window.switchToAnonymous = function () {
+			teardownActiveRoom();
+			window.onAccount = false;
+			$authSection.addClass("app-section-hidden");
+			$navUser.addClass("app-section-hidden");
+			$anonSection.removeClass("app-section-hidden");
+			showView("login");
+		};
+
+		$(document).on("click", "[data-app-view]", function (event) {
+			event.preventDefault();
+			var viewName = $(this).data("appView");
+			if (!window.onAccount && (viewName === "account" || viewName === "chatrooms")) {
+				showView("login");
+				return;
+			}
+			showView(viewName);
+		});
+
+		$(document).on("click", ".chatroom-link[data-room-id]", function (event) {
+			event.preventDefault();
+			showView("chatroom", $(this).data("roomId"));
+		});
+
+		$(document).on("submit", "#logout-form", function (event) {
+			event.preventDefault();
+			syncCsrfInputs();
+			var $form = $(this);
+			$.ajax({
+				type: "POST",
+				url: "{% url 'account' %}",
+				data: $form.serialize(),
+				dataType: "json",
+				headers: { "X-Requested-With": "XMLHttpRequest" },
+				success: function () {
+					window.switchToAnonymous();
+				}
+			});
+		});
+	});
+</script>
 {% endblock %}

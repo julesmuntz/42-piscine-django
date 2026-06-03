@@ -1,10 +1,3 @@
-{% extends 'd08/templates/base.html' %}
-
-{% block title %}{{ title }}{% endblock %}
-
-{% block page_heading %}{{ title }} <small>Access your account</small>{% endblock %}
-
-{% block header %}
 <style>
 	.auth-panel {
 		border: 1px solid rgba(60, 60, 67, 0.16);
@@ -101,189 +94,231 @@
 		color: #ff3b30;
 	}
 </style>
-{% endblock %}
-
-{% block javascript %}
-<script>
-    (function () {
-        var csrfToken = $("input[name=csrfmiddlewaretoken]").val();
-
-        function clearFieldError($input) {
-            $input.next("span.help-block").remove();
-            $input.closest(".form-group").removeClass("has-error");
-        }
-
-        function showFieldError($input, message) {
-            clearFieldError($input);
-            $input.closest(".form-group").addClass("has-error");
-            $input.after("<span class='help-block'>" + message + "</span>");
-        }
-
-        function submitForm(onError) {
-            $("form").on("submit", function (e) {
-                e.preventDefault();
-                $.ajax({
-                    type: "POST",
-                    url: $(this).attr("action") || window.location.pathname,
-                    data: $(this).serialize(),
-                    dataType: "json",
-                    headers: { "X-Requested-With": "XMLHttpRequest" },
-                    success: function (data) {
-                        window.location.href = data.redirect;
-                    },
-                    error: function (xhr) {
-                        if (xhr.responseJSON && onError) {
-                            onError(xhr.responseJSON);
-                        }
-                    }
-                });
-            });
-        }
-
-        function initRegisterFlow() {
-            var registerCheckTimeout;
-            var usernameIsTaken = false;
-            var $username = $("#id_username");
-            var $password = $("#id_password");
-            var $passwordConfirm = $("#id_password_confirm");
-            var $submitButton = $("#submit-button");
-
-            function updateSubmitButtonState() {
-                var username = $username.val().trim();
-                var password = $password.val();
-                var passwordConfirm = $passwordConfirm.val();
-                var passwordsMatch = password && passwordConfirm && password === passwordConfirm;
-                var canSubmit = !!username && !!password && !!passwordConfirm && passwordsMatch && !usernameIsTaken;
-                $submitButton.prop("disabled", !canSubmit);
-            }
-
-            $username.on("input", function () {
-                clearTimeout(registerCheckTimeout);
-                registerCheckTimeout = setTimeout(function () {
-                    $.ajax({
-                        type: "POST",
-                        url: "{% url 'check_register' %}",
-                        data: {
-                            csrfmiddlewaretoken: csrfToken,
-                            username: $username.val()
-                        },
-                        dataType: "json",
-                        success: function (data) {
-                            usernameIsTaken = data.username_is_taken;
-                            if (usernameIsTaken) {
-                                showFieldError($username, "Username is already taken");
-                            } else {
-                                clearFieldError($username);
-                            }
-                            updateSubmitButtonState();
-                        }
-                    });
-                }, 300);
-            });
-
-            $password.add($passwordConfirm).on("input", function () {
-                var password = $password.val();
-                var passwordConfirm = $passwordConfirm.val();
-                if (password && passwordConfirm && password !== passwordConfirm) {
-                    showFieldError($passwordConfirm, "Passwords do not match");
-                } else {
-                    clearFieldError($passwordConfirm);
-                }
-                updateSubmitButtonState();
-            });
-
-            submitForm(function (data) {
-                if (!data.errors) {
-                    return;
-                }
-                $.each(data.errors, function (field, messages) {
-                    showFieldError($("#id_" + field), messages.join(" "));
-                });
-            });
-
-            updateSubmitButtonState();
-        }
-
-        function initLoginFlow() {
-            var $username = $("#id_username");
-            var $password = $("#id_password");
-
-            submitForm(function (data) {
-                var hasUsernameError = data.username_does_not_exist;
-                var hasPasswordError = data.invalid_password && !hasUsernameError;
-
-                if (hasUsernameError) {
-                    showFieldError($username, "Username does not exist");
-                } else {
-                    clearFieldError($username);
-                }
-
-                if (hasPasswordError) {
-                    showFieldError($password, "Invalid password");
-                } else {
-                    clearFieldError($password);
-                }
-            });
-        }
-
-        if ($("#id_password_confirm").length) {
-            initRegisterFlow();
-        } else {
-            initLoginFlow();
-        }
-    })();
-</script>
-{% endblock %}
-
-{% block content %}
 <div class="row">
-    <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
-        <div class="panel panel-default auth-panel">
-            <div class="panel-heading">
-                <strong>{{ action }}</strong>
-            </div>
-            <div class="panel-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="form-group{% if form.username.errors %} has-error{% endif %}">
-                        <label for="{{ form.username.id_for_label }}">Username</label>
-                        {{ form.username }}
-                        {% for error in form.username.errors %}
-                        <span class="help-block">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    <div class="form-group{% if form.password.errors %} has-error{% endif %}">
-                        <label for="{{ form.password.id_for_label }}">Password</label>
-                        {{ form.password }}
-                        {% for error in form.password.errors %}
-                        <span class="help-block">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% if action == "Register" %}
-                    <div class="form-group{% if form.password_confirm.errors %} has-error{% endif %}">
-                        <label for="{{ form.password_confirm.id_for_label }}">Confirm password</label>
-                        {{ form.password_confirm }}
-                        {% for error in form.password_confirm.errors %}
-                        <span class="help-block">{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                    {% if message %}
-                    <div class="alert alert-danger" role="alert">{{ message }}</div>
-                    {% endif %}
-                    <div class="clearfix">
-                        <button type="submit" id="submit-button" class="btn btn-primary pull-right">{{ action }}</button>
-                    </div>
-                </form>
-            </div>
-            <div class="panel-footer text-center">
-                {% if action == "Login" %}
-                <a href="{% url 'register' %}">Switch to Register</a>
-                {% elif action == "Register" %}
-                <a href="{% url 'login' %}">Switch to Login</a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
+	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+		<div class="panel panel-default auth-panel" data-auth-panel="{{ auth_mode }}">
+			<div class="panel-heading">
+				<strong>{{ action }}</strong>
+			</div>
+			<div class="panel-body">
+				<form method="post" action="{% url 'account' %}">
+					{% csrf_token %}
+					<input type="hidden" name="action" value="{{ auth_mode }}" />
+					<div class="form-group{% if form.username.errors %} has-error{% endif %}">
+						<label for="{{ form.username.id_for_label }}">Username</label>
+						{{ form.username }}
+						{% for error in form.username.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
+					</div>
+					<div class="form-group{% if form.password.errors %} has-error{% endif %}">
+						<label for="{{ form.password.id_for_label }}">Password</label>
+						{{ form.password }}
+						{% for error in form.password.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
+					</div>
+					{% if action == "Register" %}
+					<div class="form-group{% if form.password_confirm.errors %} has-error{% endif %}">
+						<label for="{{ form.password_confirm.id_for_label }}">Confirm password</label>
+						{{ form.password_confirm }}
+						{% for error in form.password_confirm.errors %}
+						<span class="help-block">{{ error }}</span>
+						{% endfor %}
+					</div>
+					{% endif %}
+					{% if message %}
+					<div class="alert alert-danger" role="alert">{{ message }}</div>
+					{% endif %}
+					<div class="clearfix">
+						<button type="submit" class="btn btn-primary pull-right auth-submit-btn">{{ action }}</button>
+					</div>
+				</form>
+			</div>
+			<div class="panel-footer text-center">
+				{% if action == "Login" %}
+				<a href="#" data-app-view="register">Switch to Register</a>
+				{% elif action == "Register" %}
+				<a href="#" data-app-view="login">Switch to Login</a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
 </div>
-{% endblock %}
+<script>
+	(function () {
+		var $panel = $('[data-auth-panel="{{ auth_mode }}"]');
+		var $form = $panel.find("form");
+		var csrfToken = $form.find("input[name=csrfmiddlewaretoken]").val();
+		var accountUrl = "{% url 'account' %}";
+
+		function clearFieldError($input) {
+			$input.next("span.help-block").remove();
+			$input.closest(".form-group").removeClass("has-error");
+		}
+
+		function showFieldError($input, message) {
+			clearFieldError($input);
+			$input.closest(".form-group").addClass("has-error");
+			$input.after("<span class='help-block'>" + message + "</span>");
+		}
+
+		function accountAjax(options) {
+			return $.ajax($.extend({
+				dataType: "json",
+				headers: { "X-Requested-With": "XMLHttpRequest" }
+			}, options));
+		}
+
+		function submitForm(onError, onSuccess) {
+			$form.on("submit", function (e) {
+				e.preventDefault();
+				accountAjax({
+					type: "POST",
+					url: accountUrl,
+					data: $form.serialize(),
+					success: function (data) {
+						if (onSuccess) {
+							onSuccess(data);
+						}
+						if (typeof window.syncCsrfInputs === "function") {
+							window.syncCsrfInputs();
+						}
+						if (typeof window.switchToAuthenticated === "function" && data.username) {
+							window.switchToAuthenticated(data.username);
+							return;
+						}
+						window.location.href = data.redirect || accountUrl;
+					},
+					error: function (xhr) {
+						if (xhr.responseJSON && onError) {
+							onError(xhr.responseJSON);
+						}
+					}
+				});
+			});
+		}
+
+		function initRegisterFlow() {
+			var registerCheckTimeout;
+			var usernameIsTaken = false;
+			var $username = $panel.find('[name="register-username"]');
+			var $password = $panel.find('[name="register-password"]');
+			var $passwordConfirm = $panel.find('[name="register-password_confirm"]');
+			var $submitButton = $panel.find(".auth-submit-btn");
+
+			function updateSubmitButtonState() {
+				var username = $username.val().trim();
+				var password = $password.val();
+				var passwordConfirm = $passwordConfirm.val();
+				var passwordsMatch = password && passwordConfirm && password === passwordConfirm;
+				var canSubmit = !!username && !!password && !!passwordConfirm && passwordsMatch && !usernameIsTaken;
+				$submitButton.prop("disabled", !canSubmit);
+			}
+
+			$username.on("input", function () {
+				clearTimeout(registerCheckTimeout);
+				registerCheckTimeout = setTimeout(function () {
+					accountAjax({
+						type: "POST",
+						url: accountUrl,
+						data: {
+							csrfmiddlewaretoken: csrfToken,
+							action: "check_register",
+							"register-username": $username.val()
+						},
+						success: function (data) {
+							usernameIsTaken = data.username_is_taken;
+							if (usernameIsTaken) {
+								showFieldError($username, "Username is already taken");
+							} else {
+								clearFieldError($username);
+							}
+							updateSubmitButtonState();
+						}
+					});
+				}, 300);
+			});
+
+			$password.add($passwordConfirm).on("input", function () {
+				var password = $password.val();
+				var passwordConfirm = $passwordConfirm.val();
+				if (password && passwordConfirm && password !== passwordConfirm) {
+					showFieldError($passwordConfirm, "Passwords do not match");
+				} else {
+					clearFieldError($passwordConfirm);
+				}
+				updateSubmitButtonState();
+			});
+
+			submitForm(
+				function (data) {
+					if (!data.errors) {
+						return;
+					}
+					$.each(data.errors, function (field, messages) {
+						showFieldError(
+							$panel.find('[name="register-' + field + '"]'),
+							messages.join(" ")
+						);
+					});
+				},
+				function () {
+					$username.val("");
+					$password.val("");
+					$passwordConfirm.val("");
+					usernameIsTaken = false;
+					clearFieldError($username);
+					clearFieldError($password);
+					clearFieldError($passwordConfirm);
+					updateSubmitButtonState();
+				}
+			);
+
+			updateSubmitButtonState();
+		}
+
+		function initLoginFlow() {
+			var $username = $panel.find('[name="login-username"]');
+			var $password = $panel.find('[name="login-password"]');
+
+			function clearLoginErrors() {
+				clearFieldError($username);
+				clearFieldError($password);
+			}
+
+			$username.add($password).on("focus", clearLoginErrors);
+
+			submitForm(
+				function (data) {
+					$password.val("");
+
+					var hasUsernameError = data.username_does_not_exist;
+					var hasPasswordError = data.invalid_password && !hasUsernameError;
+
+					if (hasUsernameError) {
+						showFieldError($username, "Username does not exist");
+					} else {
+						clearFieldError($username);
+					}
+
+					if (hasPasswordError) {
+						showFieldError($password, "Invalid password");
+					} else {
+						clearFieldError($password);
+					}
+				},
+				function () {
+					$username.val("");
+					$password.val("");
+				}
+			);
+		}
+
+		if ("{{ auth_mode }}" === "register") {
+			initRegisterFlow();
+		} else {
+			initLoginFlow();
+		}
+	})();
+</script>

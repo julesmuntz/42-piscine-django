@@ -1,8 +1,3 @@
-{% extends 'd08/templates/base.html' %}
-
-{% block title %}{{ chatroom.name }}{% endblock %}
-
-{% block header %}
 <style>
 	.chat-panel {
 		max-width: 720px;
@@ -21,6 +16,28 @@
 		scrollbar-gutter: stable;
 		padding: 12px;
 		background: #f5f5f7;
+		-ms-overflow-style: auto;
+		scrollbar-width: thin;
+		scrollbar-color: #aeaeb2 #e8e8ed;
+	}
+
+	.chat-messages::-webkit-scrollbar {
+		display: block;
+		width: 8px;
+	}
+
+	.chat-messages::-webkit-scrollbar-track {
+		background: #e8e8ed;
+		border-radius: 4px;
+	}
+
+	.chat-messages::-webkit-scrollbar-thumb {
+		background: #aeaeb2;
+		border-radius: 4px;
+	}
+
+	.chat-messages::-webkit-scrollbar-thumb:hover {
+		background: #8e8e93;
 	}
 
 	.chat-messages .list-group {
@@ -28,7 +45,7 @@
 		padding: 0;
 	}
 
-	.chat-message-item {
+	.chat-messages .list-group-item.chat-message-item {
 		display: flex;
 		flex-direction: column;
 		margin-bottom: 10px;
@@ -37,51 +54,50 @@
 		padding: 0;
 	}
 
-	.chat-message-item:last-child {
+	.chat-messages .list-group-item.chat-message-item:last-child {
 		margin-bottom: 0;
 	}
 
-	.chat-message-item.chat-outgoing {
+	.chat-messages .list-group-item.chat-message-item.chat-outgoing {
 		align-items: flex-end;
 	}
 
-	.chat-message-item.chat-incoming {
+	.chat-messages .list-group-item.chat-message-item.chat-incoming {
 		align-items: flex-start;
 	}
 
-	.chat-bubble {
+	.chat-messages .chat-bubble {
 		max-width: 78%;
 		padding: 10px 14px;
 		border-radius: 18px;
 		line-height: 1.35;
 		word-break: break-word;
 		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
-		transition: background 140ms linear;
 	}
 
-	.chat-outgoing .chat-bubble {
+	.chat-messages .list-group-item.chat-message-item.chat-outgoing .chat-bubble {
 		background: #0a84ff;
 		color: #fff;
 		border-bottom-right-radius: 5px;
 	}
 
-	.chat-incoming .chat-bubble {
+	.chat-messages .list-group-item.chat-message-item.chat-incoming .chat-bubble {
 		background: #e9e9eb;
 		color: #1c1c1e;
 		border-bottom-left-radius: 5px;
 	}
 
-	.chat-message-meta {
+	.chat-messages .chat-message-meta {
 		margin-top: 4px;
 		font-size: 11px;
 		color: #777;
 	}
 
-	.chat-outgoing .chat-message-meta {
+	.chat-messages .list-group-item.chat-message-item.chat-outgoing .chat-message-meta {
 		text-align: right;
 	}
 
-	.chat-incoming .chat-message-meta {
+	.chat-messages .list-group-item.chat-message-item.chat-incoming .chat-message-meta {
 		text-align: left;
 	}
 
@@ -129,22 +145,29 @@
 		border-radius: 24px;
 		padding: 6px 8px 6px 12px;
 		display: flex;
-		align-items: flex-end;
+		align-items: center;
 		gap: 8px;
 	}
 
-	.chat-input {
+	.chat-composer .form-control.chat-input {
+		flex: 1 1 auto;
+		width: 100%;
+		height: 32px;
+		min-height: 32px;
+		max-height: 96px;
+		margin: 0;
+		padding: 6px 0;
 		border: none;
 		box-shadow: none;
 		resize: none;
-		padding: 8px 0;
-		min-height: 20px;
-		max-height: 96px;
-		line-height: 1.35;
+		line-height: 20px;
+		font-size: 14px;
 		background: transparent;
+		box-sizing: border-box;
+		overflow-y: auto;
 	}
 
-	.chat-input:focus {
+	.chat-composer .form-control.chat-input:focus {
 		outline: none;
 		box-shadow: none;
 	}
@@ -179,15 +202,12 @@
 	}
 
 </style>
-{% endblock %}
-
-{% block content %}
 <div class="chat-panel">
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h3 style="text-align: center;" class="panel-title">{{ chatroom.name }}</h3>
 			<div style="text-align: center;" class="chat-members">
-				<span id="chat-members-list" class="chat-members-list">
+				<span id="chat-members-list-{{ chatroom.pk }}" class="chat-members-list">
 					{% spaceless %}
 					{% for member in chatroom.members.all %}
 					<span class="badge">{{ member.username }}</span>
@@ -198,10 +218,10 @@
 				</span>
 			</div>
 		</div>
-		<div class="panel-body chat-messages" id="messages">
-			<ul class="list-group" id="message-list">
+		<div class="panel-body chat-messages" id="messages-{{ chatroom.pk }}">
+			<ul class="list-group" id="message-list-{{ chatroom.pk }}">
 				{% for message in recent_messages %}
-				{% if message.content == message.user.username|add:" has joined the chat" or message.content == message.user.username|add:" has left the chat" %}
+				{% if message.is_system %}
 				<li class="list-group-item chat-system-event">
 					<p class="list-group-item-text">{{ message.content }}</p>
 				</li>
@@ -216,16 +236,16 @@
 				</li>
 				{% endif %}
 				{% empty %}
-				<li class="list-group-item text-muted text-center" id="empty-state">No messages yet.</li>
+				<li class="list-group-item text-muted text-center" id="empty-state-{{ chatroom.pk }}">No messages yet.</li>
 				{% endfor %}
 			</ul>
 		</div>
 		<div class="panel-footer">
-			<form id="chat-form">
+			<form id="chat-form-{{ chatroom.pk }}" onsubmit="event.preventDefault()">
 				<div class="chat-composer">
 					<textarea
 						class="form-control chat-input"
-						id="message-input"
+						id="message-input-{{ chatroom.pk }}"
 						name="content"
 						rows="1"
 						placeholder="Message"
@@ -245,61 +265,72 @@
 		</div>
 	</div>
 </div>
-{% endblock %}
-
-{% block javascript %}
 <script>
+	/* Chat app: WebSocket (Channels) + jQuery for the message list UI. */
 	$(function () {
-		var $messages = $("#messages");
-		var $messageList = $("#message-list");
-		var $messageInput = $("#message-input");
-		var $membersList = $("#chat-members-list");
-		var currentUsername = "{{ user.username|escapejs }}";
 		var roomId = "{{ chatroom.pk }}";
-		var scheme = window.location.protocol === "https:" ? "wss" : "ws";
-		var socket = new WebSocket(
-			scheme + "://" + window.location.host + "/ws/chatroom/" + roomId + "/"
-		);
+		var $messages = $("#messages-" + roomId);
+		var $messageList = $("#message-list-" + roomId);
+		var $messageInput = $("#message-input-" + roomId);
+		var $membersList = $("#chat-members-list-" + roomId);
+		var currentUsername = "{{ user.username|escapejs }}";
+		var activeSocket = null;
+
+		function getCurrentUsername() {
+			var liveUsername = $("#account-username").text() || $("#nav-username").text();
+			return (liveUsername || currentUsername || "").trim();
+		}
+
+		function setupChatroom() {
+			if (activeSocket && activeSocket.readyState === WebSocket.OPEN) {
+				return;
+			}
+			if (activeSocket) {
+				activeSocket.close();
+			}
+
+			var scheme = window.location.protocol === "https:" ? "wss" : "ws";
+			activeSocket = new WebSocket(
+				scheme + "://" + window.location.host + "/ws/chatroom/" + roomId + "/"
+			);
+			bindSocket(activeSocket);
+		}
+
+		function teardownChatroom() {
+			if (activeSocket) {
+				activeSocket.close();
+				activeSocket = null;
+			}
+		}
 
 		function scrollToBottom() {
 			$messages.scrollTop($messages[0].scrollHeight);
 		}
 
-		function clamp(value, min, max) {
-			return Math.max(min, Math.min(max, value));
-		}
-
-		function updateOutgoingBubbleGradient() {
-			var container = $messages[0];
-			if (!container) {
-				return;
-			}
-
-			var containerRect = container.getBoundingClientRect();
-			var containerHeight = Math.max(containerRect.height, 1);
-			$messageList.find(".chat-outgoing .chat-bubble").each(function () {
-				var bubbleRect = this.getBoundingClientRect();
-				var centerY = (bubbleRect.top + bubbleRect.bottom) / 2;
-				var ratio = clamp((centerY - containerRect.top) / containerHeight, 0, 1);
-				var lightness = 72 - ratio * 20;
-				var highlight = Math.min(88, lightness + 10);
-				this.style.background =
-					"linear-gradient(180deg, hsl(211, 100%, " +
-					highlight +
-					"%), hsl(211, 100%, " +
-					lightness +
-					"%))";
-			});
-		}
-
 		function resizeComposerInput() {
 			var input = $messageInput[0];
-			input.style.height = "auto";
-			input.style.height = Math.min(input.scrollHeight, 96) + "px";
+			var $composer = $messageInput.closest(".chat-composer");
+			var minHeight = 32;
+			var maxHeight = 96;
+			var nextHeight = minHeight;
+
+			if ((input.value || "").length) {
+				input.style.height = "auto";
+				nextHeight = Math.max(
+					minHeight,
+					Math.min(input.scrollHeight, maxHeight)
+				);
+			}
+
+			input.style.height = nextHeight + "px";
+			$composer.css(
+				"align-items",
+				nextHeight > minHeight ? "flex-end" : "center"
+			);
 		}
 
 		function appendMessage(username, sentAt, content, messageType, shouldScroll) {
-			$("#empty-state").remove();
+			$("#empty-state-" + roomId).remove();
 			if (typeof shouldScroll === "undefined") {
 				shouldScroll = true;
 			}
@@ -309,11 +340,12 @@
 				$item.addClass("chat-system-event");
 				$item.append($("<p>").addClass("list-group-item-text").text(content));
 			} else {
-				var itemClass =
-					username === currentUsername
+				var isOutgoing = username === getCurrentUsername();
+				$item.addClass(
+					isOutgoing
 						? "chat-message-item chat-outgoing"
-						: "chat-message-item chat-incoming";
-				$item.addClass(itemClass);
+						: "chat-message-item chat-incoming"
+				);
 				$item.append(
 					$("<div>")
 						.addClass("chat-bubble")
@@ -335,7 +367,6 @@
 			if (shouldScroll) {
 				scrollToBottom();
 			}
-			updateOutgoingBubbleGradient();
 		}
 
 		function renderRecentMessages(messages) {
@@ -344,7 +375,7 @@
 				$messageList.append(
 					$("<li>")
 						.addClass("list-group-item text-muted text-center")
-						.attr("id", "empty-state")
+						.attr("id", "empty-state-" + roomId)
 						.text("No messages yet.")
 				);
 				return;
@@ -360,7 +391,6 @@
 				);
 			});
 			scrollToBottom();
-			updateOutgoingBubbleGradient();
 		}
 
 		function renderMembers(members) {
@@ -377,43 +407,61 @@
 			});
 		}
 
-		socket.onmessage = function (event) {
-			var data = JSON.parse(event.data);
-			if (data.event_type === "recent_messages") {
-				renderRecentMessages(data.messages);
-				return;
-			}
+		function bindSocket(socket) {
+			socket.onmessage = function (event) {
+				var data = JSON.parse(event.data);
+				if (data.event_type === "recent_messages") {
+					renderRecentMessages(data.messages);
+					return;
+				}
 
-			if (data.event_type === "members_update") {
-				renderMembers(data.members);
-				return;
-			}
+				if (data.event_type === "members_update") {
+					renderMembers(data.members);
+					return;
+				}
 
-			appendMessage(data.username, data.sent_at, data.message, data.message_type);
-		};
+				appendMessage(data.username, data.sent_at, data.message, data.message_type);
+			};
+		}
 
-		$("#chat-form").on("submit", function (event) {
-			event.preventDefault();
-
+		function sendMessage() {
 			var content = ($messageInput.val() || "").trim();
-			if (!content || socket.readyState !== WebSocket.OPEN) {
+			if (!content || !activeSocket || activeSocket.readyState !== WebSocket.OPEN) {
 				return;
 			}
 
-			socket.send(JSON.stringify({ message: content }));
+			activeSocket.send(JSON.stringify({ message: content }));
 			$messageInput.val("").focus();
 			resizeComposerInput();
+		}
+
+		$("#chat-form-" + roomId).on("submit", function (event) {
+			event.preventDefault();
+			sendMessage();
+		});
+
+		$messageInput.on("keydown", function (event) {
+			if (event.key === "Enter" && !event.shiftKey) {
+				event.preventDefault();
+				sendMessage();
+			}
 		});
 
 		$messageInput.on("input", function () {
 			resizeComposerInput();
 		});
 
-		$messages.on("scroll", updateOutgoingBubbleGradient);
-		$(window).on("resize", updateOutgoingBubbleGradient);
 		resizeComposerInput();
 		scrollToBottom();
-		updateOutgoingBubbleGradient();
+
+		window.chatroomControllers = window.chatroomControllers || {};
+		window.chatroomControllers[roomId] = {
+			setup: setupChatroom,
+			teardown: teardownChatroom,
+		};
+
+		if (!window.onAccount) {
+			setupChatroom();
+		}
 	});
 </script>
-{% endblock %}
